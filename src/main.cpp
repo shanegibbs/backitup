@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
+#include <functional>
 
 #include "BackupPath.h"
 #include "FileTreeNode.h"
@@ -17,12 +18,15 @@ using namespace backitup;
 
 int main(int argc, char** argv) {
 
-  auto b = BackupPath::create("snowy-lang", "/Users/sgibbs/shanegibbs/snowy-lang");
-  auto files = b->listFiles();
-  for (auto f : *files) {
+  auto b = BackupPath::create("snowy-lang", "/home/sgibbs/shanegibbs/snowy-lang");
+
+  unsigned int fileCount = 0;
+  b->visitFiles([&] (shared_ptr<const FileTreeNode> f) -> void {
+    fileCount++;
     printf("%s\n", f->getFullPath()->c_str());
-  }
-  printf("Found %lu files\n", files->size());
+  });
+
+  printf("Found %d files\n", fileCount);
 
   return 0;
 }

@@ -8,6 +8,8 @@
 #ifndef BACKUPPATH_H_
 #define BACKUPPATH_H_
 
+#include <functional>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -25,9 +27,7 @@ public:
     return shared_ptr<BackupPath>(new BackupPath(name, path));
   }
 
-  shared_ptr<vector<const FileTreeNode*>> listFiles();
-
-  void visitFiles(void (*)(FileTreeNode*));
+  void visitFiles(function<void(shared_ptr<const FileTreeNode>)> fn) const;
 
 private:
   const string name;

@@ -12,7 +12,7 @@
 
 namespace backitup {
 
-FileTreeNode::FileTreeNode(int id, const string name, const FileTreeNode *parent) : name(name), parent(parent) {
+FileTreeNode::FileTreeNode(int id, const string name, shared_ptr<const FileTreeNode> parent) : name(name), parent(parent) {
 
 }
 
@@ -21,9 +21,9 @@ const shared_ptr<const string> FileTreeNode::getFullPath() const {
   stack<const FileTreeNode*> chain;
 
   const FileTreeNode *n = this;
-  while (n != nullptr) {
+  while (n) {
     chain.push(n);
-    n = n->parent;
+    n = n->parent.get();
   }
 
   std::stringstream ss;
