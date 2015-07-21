@@ -1,9 +1,9 @@
-#include <cppunit/config/SourcePrefix.h>
-#include "FileTreeNodeTest.h"
-
 #include <string.h>
 
+#include <cppunit/config/SourcePrefix.h>
 #include <FileTreeNode.h>
+
+#include "FileTreeNodeTest.h"
 
 using namespace std;
 using namespace backitup;
