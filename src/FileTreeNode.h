@@ -21,6 +21,14 @@ public:
 
   const shared_ptr<const string> getFullPath() const;
 
+  static shared_ptr<const FileTreeNode> create(int id, const string name, shared_ptr<const FileTreeNode> parent) {
+    return shared_ptr<const FileTreeNode>(new FileTreeNode(id, name, parent));
+  }
+
+  static shared_ptr<const FileTreeNode> createRoot() {
+    return shared_ptr<const FileTreeNode>(new FileTreeNode(0, "", shared_ptr<const FileTreeNode>()));
+  }
+
 private:
   const string name;
   shared_ptr<const FileTreeNode> parent;

@@ -16,7 +16,7 @@
 
 namespace backitup {
 
-BackupPath::BackupPath(const std::string n, const std::string p) : name(n), path(p) {
+BackupPath::BackupPath(shared_ptr<FileIndex> i, const std::string p) : index(i), path(p) {
 
 }
 
@@ -42,8 +42,7 @@ void visitFilesRecursive(const string &base, shared_ptr<const FileTreeNode> node
 }
 
 void BackupPath::visitFiles(function<void(shared_ptr<const FileTreeNode>)> fn) const {
-  shared_ptr<const FileTreeNode> n(new FileTreeNode(0, "", shared_ptr<const FileTreeNode>()));
-  visitFilesRecursive(path, n, fn);
+  visitFilesRecursive(path, FileTreeNode::createRoot(), fn);
 }
 
 }

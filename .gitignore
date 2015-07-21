@@ -42,10 +42,14 @@ Makefile.in
 /autom4te.cache
 /test-driver
 /tmp
-/m4
 .deps
 Makefile
 /.autotools
 /.cproject
 /.project
 /.settings
+/COPYING
+/INSTALL
+/config.guess
+/config.sub
+/ltmain.sh

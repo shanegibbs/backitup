@@ -18,19 +18,20 @@ using namespace std;
 namespace backitup {
 
 class FileTreeNode;
+class FileIndex;
 
 class BackupPath {
 public:
-  BackupPath(const string name, const string path);
+  BackupPath(shared_ptr<FileIndex> index, const string path);
 
-  static shared_ptr<BackupPath> create(const string name, const string path) {
-    return shared_ptr<BackupPath>(new BackupPath(name, path));
+  static shared_ptr<BackupPath> create(shared_ptr<FileIndex> index, const string path) {
+    return shared_ptr<BackupPath>(new BackupPath(index, path));
   }
 
   void visitFiles(function<void(shared_ptr<const FileTreeNode>)> fn) const;
 
 private:
-  const string name;
+  shared_ptr<FileIndex> index;
   const string path;
 };
 }
