@@ -5,6 +5,7 @@ AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([serial-tests])
+AM_SILENT_RULES([yes])
 
 AC_PROG_CXX
 AC_LANG([C++])
@@ -15,6 +16,10 @@ AX_CXX_COMPILE_STDCXX_11([],[mandatory])
 
 AX_BERKELEY_DB_CXX([6], [], [
   AC_MSG_ERROR([Error, berkeley db not found])
+])
+
+PKG_CHECK_MODULES([protobuf], [protobuf], [], [
+  AC_MSG_ERROR([protobuf not found])
 ])
 
 PKG_CHECK_MODULES([cppunit], [cppunit], [], [

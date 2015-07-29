@@ -15,11 +15,19 @@ using namespace std;
 
 class Db;
 
+namespace google {
+namespace protobuf {
+class Message;
+}
+}
+
 namespace backitup {
 
-class FileIndex {
+class Node;
+class NodeRecord;
 
-public:
+class FileIndex {
+ public:
   FileIndex(const string &name);
   ~FileIndex();
 
@@ -27,16 +35,18 @@ public:
     return shared_ptr<FileIndex>(new FileIndex(name));
   }
 
-  const string &getName() {
-    return name;
-  }
+  const string &getName() { return name; }
 
-  void getOrCreate();
+  shared_ptr<Db> getDb() { return db; }
 
-private:
+  void saveNodeRecord(const NodeRecord &r);
+  void getNodeRecord(const ::google::protobuf::Message &k);
+
+  shared_ptr<Node> getNode(unsigned int parentId, const string &name);
+
+ private:
   const string &name;
-  unique_ptr<Db> db;
-
+  shared_ptr<Db> db;
 };
 }
 

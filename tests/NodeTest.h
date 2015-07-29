@@ -3,23 +3,21 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class FileTreeNodeTest : public CPPUNIT_NS::TestFixture
-{
-  CPPUNIT_TEST_SUITE( FileTreeNodeTest );
-  CPPUNIT_TEST( testGetFullPath );
-  CPPUNIT_TEST( testGetFullPathNested );
+class NodeTest : public CPPUNIT_NS::TestFixture {
+  CPPUNIT_TEST_SUITE(NodeTest);
+  CPPUNIT_TEST(testGetFullPath);
+  CPPUNIT_TEST(testGetFullPathNested);
   CPPUNIT_TEST_SUITE_END();
 
-protected:
+ protected:
   double m_value1;
   double m_value2;
 
-public:
+ public:
   void setUp();
   void tearDown();
   void testGetFullPath();
   void testGetFullPathNested();
-
 };
 
 #endif /* FILETREENODETEST_H_ */

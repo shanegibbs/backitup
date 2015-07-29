@@ -1,0 +1,46 @@
+package backitup;
+
+enum DatabaseKeyType {
+  META = 0;
+  COUNTER = 1;
+  NODE = 2;
+  HASH = 3;
+}
+
+message DatabaseSimpleKey {
+  required DatabaseKeyType type = 1;
+  required uint32 id = 2;
+}
+
+message CounterRecord {
+  required uint32 id = 1;
+}
+
+message FileVersionRecord {
+  required uint32 backupId = 1;
+  required bool exists = 2;
+  optional uint32 timestamp = 3;
+  optional uint32 hashId = 4;
+}
+
+message NodeRecord {
+  optional uint32 parentId = 1;
+  required string name = 2;
+  required bool leaf = 3;
+  repeated FileVersionRecord versions = 4;
+}
+
+message HashRecord {
+  optional uint32 size = 1;
+  required bytes md5 = 2;
+  required bytes sha1 = 3;
+}
+
+message BackupRecord {
+  required uint32 created = 1;
+  required bool hourly = 2;
+  required bool daily = 3;
+  required bool weekly = 4;
+  required bool monthly = 5;
+  required bool yearly = 6;
+}
