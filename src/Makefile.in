@@ -98,7 +98,8 @@ CONFIG_CLEAN_VPATH_FILES =
 LTLIBRARIES = $(noinst_LTLIBRARIES)
 libbackitup_la_LIBADD =
 am_libbackitup_la_OBJECTS = BackupPath.lo Node.lo FileIndex.lo \
-	Database.lo Database.pb.lo Repository.lo NodeRepo.lo
+	Database.lo Database.pb.lo Repository.lo RepositoryIndex.lo \
+	NodeRepo.lo
 libbackitup_la_OBJECTS = $(am_libbackitup_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -314,6 +315,7 @@ libbackitup_la_SOURCES = \
 	Database.cpp \
   Database.pb.cc \
 	Repository.cpp \
+	RepositoryIndex.cpp \
 	NodeRepo.cpp
 
 libbackitup_la_CFLAGS = @protobuf_CFLAGS@
@@ -440,6 +442,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Node.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/NodeRepo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Repository.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/RepositoryIndex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/main.Po@am__quote@
 
 .cc.o:

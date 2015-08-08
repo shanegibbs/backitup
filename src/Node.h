@@ -17,7 +17,7 @@ namespace backitup {
 
 class Node {
 public:
-  Node(const unsigned int id, const string name, shared_ptr<const Node> parent);
+  Node(unsigned int id, const string name, shared_ptr<Node> parent);
 
   const shared_ptr<const string> getFullPath() const;
 
@@ -33,12 +33,12 @@ public:
     return name;
   }
 
-  shared_ptr<const Node> getParent() const {
+  shared_ptr<Node> getParent() const {
     return parent;
   }
 
-  static shared_ptr<const Node> create(int id, const string name, shared_ptr<const Node> parent) {
-    return shared_ptr<const Node>(new Node(id, name, parent));
+  static shared_ptr<Node> create(int id, const string name, shared_ptr<Node> parent) {
+    return shared_ptr<Node>(new Node(id, name, parent));
   }
 
   static shared_ptr<Node> createRoot() {
@@ -48,7 +48,7 @@ public:
 private:
   unsigned int id;
   const string name;
-  shared_ptr<const Node> parent;
+  shared_ptr<Node> parent;
 };
 }
 

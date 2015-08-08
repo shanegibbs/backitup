@@ -14,6 +14,7 @@
 
 #include "RepositoryTest.h"
 #include <Repository.h>
+#include <RepositoryIndex.h>
 #include <Database.h>
 #include <Database.pb.h>
 
@@ -73,4 +74,20 @@ void RepositoryTest::testGetNotFound() {
   k.set_id(1);
 
   CPPUNIT_ASSERT_THROW(r->get(k), NotFoundDatabaseException);
+}
+
+void RepositoryTest::testIndex() {
+  auto r = Repository<DatabaseSimpleKey, NodeRecord>::create(db);
+  auto i = RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>::create(r);
+
+  DatabaseSimpleKey k;
+  k.set_type(NODE);
+  k.set_id(2);
+
+  NodeRecord v;
+  v.set_parentid(1);
+  v.set_name("root");
+  v.set_leaf(false);
+
+  r->put(k, v);
 }

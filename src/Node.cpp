@@ -12,7 +12,7 @@
 
 namespace backitup {
 
-Node::Node(const unsigned int id, const string name, shared_ptr<const Node> parent) : id(id), name(name), parent(parent) {
+Node::Node(unsigned int id, const string name, shared_ptr<Node> parent) : id(id), name(name), parent(parent) {
 
 }
 

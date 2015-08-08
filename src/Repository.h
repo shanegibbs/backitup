@@ -17,6 +17,8 @@ namespace backitup {
 
 class Database;
 
+// Wrapper class that allows to get and put
+// protobuf objects
 template <class K, class V>
 class Repository {
  public:
@@ -29,6 +31,9 @@ class Repository {
   shared_ptr<V> get(const K &k);
   void put(const K &k, const V &v);
 
+  // template <class I>
+  // void addIndex(const RepositoryIndex<K, V, I> &idx);
+
  private:
   const string keyToString(const K &k);
   const string valueToString(const V &v);
@@ -36,6 +41,5 @@ class Repository {
 
   shared_ptr<Database> db;
 };
-
 }
 #endif /* REPOSITORY_H_ */

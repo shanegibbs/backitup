@@ -17,15 +17,20 @@
 #include "Node.h"
 #include "FileIndex.h"
 #include "NodeRepo.h"
+#include "RepositoryIndex.h"
 #include "Database.h"
 
 using namespace std;
 using namespace backitup;
 
 int main(int argc, char** argv) {
-  auto db = Database::open("index.db");
-  // auto index = FileIndex::create("snowy-lang");
-  NodeRepo repo(db);
+  string backupName = "scratch";
+
+  // auto db = Database::open(backupName + ".db");
+  // auto index = Index::open(backupName + "-index.db");
+  // db->addIndex(index);
+
+  NodeRepo repo(backupName);
 
   string path = argv[1];
   cout << "Path: " << path << endl;

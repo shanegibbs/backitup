@@ -23,16 +23,16 @@ class Node;
 
 class NodeRepo {
  public:
-  NodeRepo(shared_ptr<Database> db)
-      : counter(Repository<DatabaseSimpleKey, CounterRecord>(db)),
-        repo(Repository<DatabaseSimpleKey, NodeRecord>(db)) {}
+  NodeRepo(const string &name);
 
   // not const because we update the id field
   void save(Node &n);
 
  private:
-  Repository<DatabaseSimpleKey, CounterRecord> counter;
-  Repository<DatabaseSimpleKey, NodeRecord> repo;
+  const string name;
+  shared_ptr<Database> db;
+  shared_ptr<Repository<DatabaseSimpleKey, CounterRecord>> counter;
+  shared_ptr<Repository<DatabaseSimpleKey, NodeRecord>> repo;
 
   unsigned int nextId();
 };

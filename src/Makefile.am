@@ -13,6 +13,7 @@ libbackitup_la_SOURCES = \
 	Database.cpp \
   Database.pb.cc \
 	Repository.cpp \
+	RepositoryIndex.cpp \
 	NodeRepo.cpp
 
 libbackitup_la_CFLAGS = @protobuf_CFLAGS@

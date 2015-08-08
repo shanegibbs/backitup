@@ -44,3 +44,8 @@ message BackupRecord {
   required bool monthly = 5;
   required bool yearly = 6;
 }
+
+message ParentNameIndex {
+  required uint32 parentId = 1;
+  required string name = 2;
+}

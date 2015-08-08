@@ -51,6 +51,14 @@ shared_ptr<V> Repository<K, V>::stringToValue(const string &data) {
   return v;
 }
 
+/*
+template <class K, class V>
+template <class I>
+void Repository<K, V>::addIndex(const RepositoryIndex<K, V, I> &idx) {
+  cout << "adding Index" << endl;
+}
+*/
+
 template class backitup::Repository<DatabaseSimpleKey, CounterRecord>;
 template class backitup::Repository<DatabaseSimpleKey, NodeRecord>;
 }

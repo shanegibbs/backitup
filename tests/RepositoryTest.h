@@ -20,6 +20,7 @@ class RepositoryTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST(testInsert);
   CPPUNIT_TEST(testGet);
   CPPUNIT_TEST(testGetNotFound);
+  CPPUNIT_TEST(testIndex);
   CPPUNIT_TEST_SUITE_END();
 
  protected:
@@ -31,6 +32,7 @@ class RepositoryTest : public CPPUNIT_NS::TestFixture {
   void testInsert();
   void testGet();
   void testGetNotFound();
+  void testIndex();
 };
 
 #endif /* REPOSITORYTEST_H_ */
