@@ -16,26 +16,26 @@
 using namespace std;
 
 class Db;
+class Dbt;
 
 namespace backitup {
 
 template <class K, class V, class I>
 class RepositoryIndex {
  public:
-  static shared_ptr<RepositoryIndex> create(shared_ptr<Repository<K, V>> repo);
+  static shared_ptr<RepositoryIndex> create(const string &filename, shared_ptr<Repository<K, V>> repo);
 
-  const string getRecord(const string &key);
+  shared_ptr<V> get(const I &i);
 
   void close();
 
  private:
-  RepositoryIndex(shared_ptr<Repository<K, V>> repo);
+  RepositoryIndex(const string &filename, shared_ptr<Repository<K, V>> repo);
 
-  void openDb();
+  int keyCreationCallback(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey);
 
   const string filename;
-  shared_ptr<Db> idx;
-  shared_ptr<Repository<K, V>> repo;
+  shared_ptr<Database> db;
 };
 
 }

@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <functional>
 #include DB_CXX_HEADER
 
 #include "Database.pb.h"
@@ -53,9 +54,12 @@ shared_ptr<V> Repository<K, V>::stringToValue(const string &data) {
 
 /*
 template <class K, class V>
-template <class I>
-void Repository<K, V>::addIndex(const RepositoryIndex<K, V, I> &idx) {
-  cout << "adding Index" << endl;
+void Repository<K, V>::associate(shared_ptr<Database> secondary) {
+
+  // function<int (Db *, const Dbt *, const Dbt *, Dbt *)> func;
+  // function<int, (Db *sdbp, const Dbt *pkey, const Dbt *pdata,Dbt *skey)>;
+
+  db->getDb()->associate(NULL, secondary->getDb().get(), 0, 0);
 }
 */
 

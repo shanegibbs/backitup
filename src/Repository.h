@@ -31,8 +31,11 @@ class Repository {
   shared_ptr<V> get(const K &k);
   void put(const K &k, const V &v);
 
-  // template <class I>
-  // void addIndex(const RepositoryIndex<K, V, I> &idx);
+  // void associate(shared_ptr<Database> secondary);
+
+  shared_ptr<Database> getDb() {
+    return db;
+  }
 
  private:
   const string keyToString(const K &k);

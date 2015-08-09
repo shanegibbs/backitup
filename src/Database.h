@@ -24,6 +24,10 @@ class Database {
   const string getRecord(const string &key);
   void putRecord(const string &key, const string &value);
 
+  shared_ptr<Db> getDb() {
+    return db;
+  }
+
   void close();
 
  private:

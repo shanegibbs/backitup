@@ -77,8 +77,9 @@ void RepositoryTest::testGetNotFound() {
 }
 
 void RepositoryTest::testIndex() {
-  auto r = Repository<DatabaseSimpleKey, NodeRecord>::create(db);
-  auto i = RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>::create(r);
+
+  auto repo = Repository<DatabaseSimpleKey, NodeRecord>::create(db);
+  auto idx = RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>::create("index", repo);
 
   DatabaseSimpleKey k;
   k.set_type(NODE);
@@ -89,5 +90,11 @@ void RepositoryTest::testIndex() {
   v.set_name("root");
   v.set_leaf(false);
 
-  r->put(k, v);
+  repo->put(k, v);
+
+  ParentNameIndex i;
+  i.set_parentid(1);
+  i.set_name("root");
+
+  idx->get(i);
 }
