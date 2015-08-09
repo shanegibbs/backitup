@@ -1,3 +1,4 @@
+## Dependencies
 
 ```
 sudo apt-get install -y \
@@ -6,11 +7,5 @@ sudo apt-get install -y \
   libprotobuf8 \
   libprotobuf-dev \
   protobuf-compiler
-```
-
-Update protocol buffers
-
-```
-protoc -I=src --cpp_out=src src/Database.proto
 ```
 
