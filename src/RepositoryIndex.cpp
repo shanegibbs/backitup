@@ -22,10 +22,8 @@ namespace backitup {
 template <class K, class V, class I>
 shared_ptr<RepositoryIndex<K, V, I>> RepositoryIndex<K, V, I>::create(
     const string &filename, shared_ptr<Repository<K, V>> repo) {
-
   auto index = shared_ptr<RepositoryIndex<K, V, I>>(
       new RepositoryIndex<K, V, I>(filename, repo));
-
   return index;
 }
 
@@ -34,6 +32,7 @@ RepositoryIndex<K, V, I>::RepositoryIndex(const string &filename, shared_ptr<Rep
     : filename(filename) {
   db = Database::open(filename);
 
+  // TODO need to pass function here
   repo->getDb()->getDb()->associate(NULL, db->getDb().get(), 0, 0);
 }
 
