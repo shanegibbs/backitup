@@ -87,14 +87,14 @@ void RepositoryTest::testIndex() {
 
   NodeRecord v;
   v.set_parentid(1);
-  v.set_name("root");
+  v.set_name("subdir");
   v.set_leaf(false);
 
   repo->put(k, v);
 
   ParentNameIndex i;
   i.set_parentid(1);
-  i.set_name("root");
+  i.set_name("subdir");
 
   idx->get(i);
 }
