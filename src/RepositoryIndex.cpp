@@ -27,7 +27,9 @@ shared_ptr<RepositoryIndex<K, V, I>> RepositoryIndex<K, V, I>::create(
   return index;
 }
 
-int myindex(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey) {
+class Something {
+ public:
+  static int myindex(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey) {
 
   // parse the primary key
   string pkeyString((char *)pkey->get_data(), pkey->get_size());
@@ -49,14 +51,19 @@ int myindex(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey) {
   idx.set_parentid(nr.parentid());
   idx.set_name(nr.name());
 
-  string *idxString = new string();
-  idx.SerializeToString(idxString);
+  string idxString;
+  idx.SerializeToString(&idxString);
 
-  skey->set_data((void *)idxString->data());
-  skey->set_size(idxString->length());
+  void *buffer = malloc(sizeof(char) * idxString.size());
+  copy(idxString.begin(), idxString.end(), (char*)buffer);
+
+  skey->set_data(buffer);
+  skey->set_size(idxString.length());
+  skey->set_flags(DB_DBT_APPMALLOC);
 
   return 0;
 }
+};
 
 template <class K, class V, class I>
 RepositoryIndex<K, V, I>::RepositoryIndex(const string &filename, shared_ptr<Repository<K, V>> repo)
@@ -64,7 +71,8 @@ RepositoryIndex<K, V, I>::RepositoryIndex(const string &filename, shared_ptr<Rep
   db = Database::open(filename);
 
   // TODO need to pass function here
-  repo->getDb()->getDb()->associate(NULL, db->getDb().get(), myindex, 0);
+  repo->getDb()->getDb()->associate(NULL, db->getDb().get(),
+      Something::myindex, 0);
 }
 
 template <class K, class V, class I>
