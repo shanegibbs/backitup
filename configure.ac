@@ -14,7 +14,7 @@ LT_INIT([shared])
 
 AX_CXX_COMPILE_STDCXX_11([],[mandatory])
 
-AX_BERKELEY_DB_CXX([6], [], [
+AX_BERKELEY_DB_CXX([5], [], [
   AC_MSG_ERROR([Error, berkeley db not found])
 ])
 

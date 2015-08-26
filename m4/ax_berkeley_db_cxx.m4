@@ -90,7 +90,7 @@ AC_DEFUN([AX_BERKELEY_DB_CXX],
     CPPFLAGS="$DB_CXX_CPPFLAGS $old_CPPFLAGS"
   fi
 
-  for major in 6; do
+  for major in 6 5; do
       for minor in 0 1 2 3 4 5 6 7 8 9; do
           for version in "${major}.${minor}" "${major}${minor}"; do
 
