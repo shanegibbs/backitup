@@ -25,6 +25,7 @@ class RepositoryTest : public CPPUNIT_NS::TestFixture {
 
  protected:
   shared_ptr<Database> db;
+  shared_ptr<Database> db2;
 
  public:
   void setUp();
@@ -33,6 +34,7 @@ class RepositoryTest : public CPPUNIT_NS::TestFixture {
   void testGet();
   void testGetNotFound();
   void testIndex();
+  void testParentNameIndexExtractor();
 };
 
 #endif /* REPOSITORYTEST_H_ */

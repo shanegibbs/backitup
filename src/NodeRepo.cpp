@@ -21,11 +21,13 @@ NodeRepo::NodeRepo(const string &name) : name(name) {
   db = Database::open(name + ".db");
   counter = shared_ptr<Repository<DatabaseSimpleKey, CounterRecord>>(
       new Repository<DatabaseSimpleKey, CounterRecord>(db));
+
   repo = shared_ptr<Repository<DatabaseSimpleKey, NodeRecord>>(
       new Repository<DatabaseSimpleKey, NodeRecord>(db));
 
-  // auto index = RepositoryIndex::open(name + "-index.db");
-  // repo->addIndex(*index);
+  parentIdx =
+      RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>::create(
+          "index.db", repo, NodeRepo::ParentNameIndexExtractor);
 }
 
 unsigned int NodeRepo::nextId() {
@@ -69,9 +71,15 @@ void NodeRepo::save(Node &n) {
   // first save parent node
   if (n.getParent()) save(*n.getParent());
 
-  cout << "saving " << n.getName() << endl;
+  cout << "saving name='" << n.getName() << "'" << endl;
 
   // get existing record with parent and name
+  if (n.getParent()) {
+    ParentNameIndex p;
+    p.set_parentid(n.getParent()->getId());
+    p.set_name(n.getName());
+    auto parentNodeRecord = parentIdx->get(p);
+  }
 
   // if not exist, insert
 
@@ -86,6 +94,32 @@ void NodeRepo::save(Node &n) {
   r.set_name(n.getName());
   r.set_leaf(true);
 
+  r.set_name("test");
+
   repo->put(k, r);
+}
+
+int NodeRepo::ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey,
+                                       const Dbt *pdata, Dbt *skey) {
+  // parse the primary key
+  auto dsk = parse<DatabaseSimpleKey>(pkey);
+
+  // cout << endl;
+  // cout << "ParentNameIndexExtractor" << endl;
+  // cout << "* pkey.id=" << dsk.id() << endl;
+
+  // parse data value
+  auto nr = parse<NodeRecord>(pdata);
+
+  // cout << "* nr.name=" << nr.name() << ",nr.parentid=" << nr.parentid() << endl;
+
+  // new secondary index
+  ParentNameIndex idx;
+  idx.set_parentid(nr.parentid());
+  idx.set_name(nr.name());
+
+  copyToDbt(idx, skey);
+
+  return 0;
 }
 }

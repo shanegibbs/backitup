@@ -13,6 +13,7 @@
 
 #include DB_CXX_HEADER
 
+#include "Log.h"
 #include "BackupPath.h"
 #include "Node.h"
 #include "FileIndex.h"

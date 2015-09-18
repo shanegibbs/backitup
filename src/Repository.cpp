@@ -18,6 +18,12 @@
 namespace backitup {
 
 template <class K, class V>
+shared_ptr<Repository<K, V>> Repository<K, V>::create(const string &filename) {
+  auto db = Database::open("index.db");
+  return shared_ptr<Repository<K, V>>(new Repository<K, V>(db));
+}
+
+template <class K, class V>
 shared_ptr<V> Repository<K, V>::get(const K &k) {
   auto keyBuf = keyToString(k);
   auto valBuf = db->getRecord(keyBuf);

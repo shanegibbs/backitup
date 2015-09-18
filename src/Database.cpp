@@ -12,6 +12,7 @@
 #include <iostream>
 #include DB_CXX_HEADER
 
+#include "Log.h"
 #include "Database.h"
 
 namespace backitup {
@@ -50,6 +51,8 @@ void Database::openDb() {
 void Database::close() { db->close(0); }
 
 const string Database::getRecord(const string &keyBuffer) {
+  assert(db);
+
   Dbt key((void *)keyBuffer.data(), keyBuffer.length());
 
   int size = 1024;

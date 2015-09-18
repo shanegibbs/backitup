@@ -100,7 +100,7 @@ AC_DEFUN([AX_BERKELEY_DB_CXX],
                   for db_cxx_lib in $try_libs; do
                     db_cxx_lib="$libdbdir `echo "$db_cxx_lib" | sed 's/%/ /g'`"
                     LIBS="$old_LIBS $db_cxx_lib"
-                    # echo "Trying <$db_cxx_lib> <$db_cxx_hdr>"
+                    # echo "Trying $db_cxx_lib and $db_cxx_hdr"
                     if test -z $DB_CXX_HEADER ; then
                       AC_LINK_IFELSE(
                           [AC_LANG_PROGRAM(

@@ -24,6 +24,8 @@ class Repository {
  public:
   Repository(shared_ptr<Database> db) : db(db){};
 
+  static shared_ptr<Repository<K, V>> create(const string &filename);
+
   static shared_ptr<Repository<K, V>> create(shared_ptr<Database> db) {
     return shared_ptr<Repository<K, V>>(new Repository<K, V>(db));
   }

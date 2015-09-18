@@ -12,6 +12,7 @@
 #include <string>
 
 #include "Repository.h"
+#include "DataHelperFn.h"
 
 using namespace std;
 
@@ -20,23 +21,37 @@ class Dbt;
 
 namespace backitup {
 
+typedef int(KeyExtractorFunc)(Db *, const Dbt *, const Dbt *, Dbt *);
+
 template <class K, class V, class I>
 class RepositoryIndex {
  public:
-  static shared_ptr<RepositoryIndex> create(const string &filename, shared_ptr<Repository<K, V>> repo);
+
+  static shared_ptr<RepositoryIndex> create(shared_ptr<Database> db,
+                                            shared_ptr<Repository<K, V>> repo,
+                                            KeyExtractorFunc extrator);
+
+  static shared_ptr<RepositoryIndex> create(const string &filename,
+                                            shared_ptr<Repository<K, V>> repo,
+                                            KeyExtractorFunc extrator);
 
   shared_ptr<V> get(const I &i);
 
   void close();
 
  private:
-  RepositoryIndex(const string &filename, shared_ptr<Repository<K, V>> repo);
+  RepositoryIndex(shared_ptr<Database> db, shared_ptr<Repository<K, V>> repo,
+                  KeyExtractorFunc extrator);
+  RepositoryIndex(const string &filename, shared_ptr<Repository<K, V>> repo,
+                  KeyExtractorFunc extrator);
 
-  int keyCreationCallback(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey);
+  int keyCreationCallback(Db *sdbp, const Dbt *pkey, const Dbt *pdata,
+                          Dbt *skey);
 
   const string filename;
   shared_ptr<Database> db;
 };
 
+int myindex(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey);
 }
-#endif /* INDEX_H_ */
+#endif /* REPOSITORY_INDEX_H_ */

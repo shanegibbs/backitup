@@ -14,9 +14,10 @@ libbackitup_la_SOURCES = \
   Database.pb.cc \
 	Repository.cpp \
 	RepositoryIndex.cpp \
-	NodeRepo.cpp
+	NodeRepo.cpp \
+	Log.cpp
 
-libbackitup_la_CFLAGS = @protobuf_CFLAGS@
+libbackitup_la_CPPFLAGS = @protobuf_CFLAGS@
 
 libbackitup_la_LDFLAGS = -module -avoid-version \
   @DB_CXX_LIBS@ \
@@ -24,6 +25,7 @@ libbackitup_la_LDFLAGS = -module -avoid-version \
 
 bin_PROGRAMS = backitup
 backitup_SOURCES = main.cpp
+backitup_CPPFLAGS = -DBOOST_LOG_DYN_LINK
 backitup_LDADD = libbackitup.la
 
 CLEANFILES = Database.pb.cc Database.pb.h

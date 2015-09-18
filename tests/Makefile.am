@@ -4,7 +4,8 @@ check_PROGRAMS = $(TESTS)
 backitup_test_SOURCES = main.cpp \
   NodeTest.cpp \
   FileIndexTest.cpp \
-	RepositoryTest.cpp
+	RepositoryTest.cpp \
+	DataHelperFnTest.cpp
 
 backitup_test_CXXFLAGS = @cppunit_CFLAGS@ -I$(top_srcdir)/src -I$(top_builddir)/src
 backitup_test_LDFLAGS = @cppunit_LIBS@

@@ -5,7 +5,7 @@ AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_MACRO_DIR([m4])
 
 AM_INIT_AUTOMAKE([serial-tests])
-AM_SILENT_RULES([yes])
+#AM_SILENT_RULES([yes])
 
 AC_PROG_CXX
 AC_LANG([C++])
@@ -25,6 +25,10 @@ PKG_CHECK_MODULES([protobuf], [protobuf], [], [
 PKG_CHECK_MODULES([cppunit], [cppunit], [], [
   AC_MSG_ERROR([cppunit not found])
 ])
+
+#AX_BOOST_BASE([1.55], [], [
+#  AC_MSG_ERROR([boost not found])
+#])
 
 AC_CONFIG_FILES([
     Makefile

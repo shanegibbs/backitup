@@ -12,9 +12,13 @@
 #include <string>
 
 #include "Repository.h"
+#include "RepositoryIndex.h"
 #include "Database.pb.h"
 
 using namespace std;
+
+class Db;
+class Dbt;
 
 namespace backitup {
 
@@ -28,11 +32,14 @@ class NodeRepo {
   // not const because we update the id field
   void save(Node &n);
 
+  static int ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey);
+
  private:
   const string name;
   shared_ptr<Database> db;
   shared_ptr<Repository<DatabaseSimpleKey, CounterRecord>> counter;
   shared_ptr<Repository<DatabaseSimpleKey, NodeRecord>> repo;
+  shared_ptr<RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>> parentIdx;
 
   unsigned int nextId();
 };
