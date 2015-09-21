@@ -21,6 +21,7 @@ class RepositoryTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST(testGet);
   CPPUNIT_TEST(testGetNotFound);
   CPPUNIT_TEST(testIndex);
+  CPPUNIT_TEST(testParentNameIndexExtractor);
   CPPUNIT_TEST_SUITE_END();
 
  protected:

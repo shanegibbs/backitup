@@ -142,7 +142,7 @@ void RepositoryTest::testParentNameIndexExtractor() {
   // index
   Dbt skey;
   NodeRepo::ParentNameIndexExtractor(0, &pkey, &pdata, &skey);
-  auto idx = parse<ParentNameIndex>(&pkey);
+  auto idx = parse<ParentNameIndex>(&skey);
 
   CPPUNIT_ASSERT_EQUAL((unsigned int)1, idx.parentid());
   CPPUNIT_ASSERT_EQUAL(string("subdir"), idx.name());
