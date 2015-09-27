@@ -17,10 +17,13 @@ class Db;
 
 namespace backitup {
 
+typedef pair<string, string> StringPair;
+
 class Database {
  public:
   static shared_ptr<Database> open(const string &filename);
 
+  const StringPair getPrimaryRecord(const string &key);
   const string getRecord(const string &key);
   void putRecord(const string &key, const string &value);
 

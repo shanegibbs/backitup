@@ -19,15 +19,17 @@ namespace backitup {
 
 NodeRepo::NodeRepo(const string &name) : name(name) {
   db = Database::open(name + ".db");
+  auto counter_db = Database::open(name + "-counter.db");
+
   counter = shared_ptr<Repository<DatabaseSimpleKey, CounterRecord>>(
-      new Repository<DatabaseSimpleKey, CounterRecord>(db));
+      new Repository<DatabaseSimpleKey, CounterRecord>(counter_db));
 
   repo = shared_ptr<Repository<DatabaseSimpleKey, NodeRecord>>(
       new Repository<DatabaseSimpleKey, NodeRecord>(db));
 
   parentIdx =
       RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>::create(
-          "index.db", repo, NodeRepo::ParentNameIndexExtractor);
+          name + "-index.db", repo, NodeRepo::ParentNameIndexExtractor);
 }
 
 unsigned int NodeRepo::nextId() {
@@ -73,30 +75,52 @@ void NodeRepo::save(Node &n) {
 
   cout << "saving name='" << n.getName() << "'" << endl;
 
+  bool found = false;
+
   // get existing record with parent and name
+  ParentNameIndex p;
+  p.set_name(n.getName());
+
   if (n.getParent()) {
-    ParentNameIndex p;
     p.set_parentid(n.getParent()->getId());
-    p.set_name(n.getName());
-    auto parentNodeRecord = parentIdx->get(p);
+  } else {
+    p.set_parentid(0);
+  }
+
+  try {
+    auto existingRecord = parentIdx->getValue(p);
+    n.setId(existingRecord->first.id());
+
+    cout << "Node " << n.getId() << " already exists" << endl;
+    found = true;
+
+  } catch (NotFoundDatabaseException e) {
+    cout << "Node not in db yet" << endl;
   }
 
   // if not exist, insert
 
-  unsigned int id = nextId();
-  n.setId(id);
+  if (!found) {
+    unsigned int id = nextId();
+    n.setId(id);
 
-  DatabaseSimpleKey k;
-  k.set_type(NODE);
-  k.set_id(id);
+    DatabaseSimpleKey k;
+    k.set_type(NODE);
+    k.set_id(id);
 
-  NodeRecord r;
-  r.set_name(n.getName());
-  r.set_leaf(true);
+    NodeRecord r;
+    if (n.getParent()) {
+      r.set_parentid(n.getParent()->getId());
+    } else {
+      r.set_parentid(0);
+    }
+    r.set_name(n.getName());
+    r.set_leaf(true);
 
-  r.set_name("test");
-
-  repo->put(k, r);
+    cout << "Saving Node id:" << k.id() << " parentid:" << r.parentid()
+         << " name:" << r.name() << endl;
+    repo->put(k, r);
+  }
 }
 
 int NodeRepo::ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey,
@@ -111,7 +135,8 @@ int NodeRepo::ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey,
   // parse data value
   auto nr = parse<NodeRecord>(pdata);
 
-  // cout << "* nr.name=" << nr.name() << ",nr.parentid=" << nr.parentid() << endl;
+  // cout << "* nr.name=" << nr.name() << ",nr.parentid=" << nr.parentid() <<
+  // endl;
 
   // new secondary index
   ParentNameIndex idx;

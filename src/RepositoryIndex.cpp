@@ -70,18 +70,37 @@ void RepositoryIndex<K, V, I>::close() {
 }
 
 template <class K, class V, class I>
-shared_ptr<V> RepositoryIndex<K, V, I>::get(const I &i) {
+shared_ptr<pair<K, V>> RepositoryIndex<K, V, I>::getValue(const I &i) {
+  string input;
+  i.SerializeToString(&input);
+
+  // assert(db);
+  StringPair output = db->getPrimaryRecord(input);
+
+  K k;
+  k.ParseFromString(output.first);
+
+  V v;
+  v.ParseFromString(output.second);
+
+  return shared_ptr<pair<K, V>>(new pair<K, V>(k, v));
+}
+
+/*
+template <class K, class V, class I>
+shared_ptr<K> RepositoryIndex<K, V, I>::getKey(const I &i) {
   string input;
   i.SerializeToString(&input);
 
   // assert(db);
   auto output = db->getRecord(input);
 
-  shared_ptr<V> v(new V());
-  v->ParseFromString(output);
+  shared_ptr<K> k(new K());
+  k->ParseFromString(output);
 
-  return v;
+  return k;
 }
+*/
 
 template class backitup::RepositoryIndex<DatabaseSimpleKey, NodeRecord,
                                          ParentNameIndex>;

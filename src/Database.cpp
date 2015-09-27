@@ -74,6 +74,38 @@ const string Database::getRecord(const string &keyBuffer) {
   return result;
 }
 
+const StringPair Database::getPrimaryRecord(const string &skeyBuffer) {
+  assert(db);
+
+  Dbt skey((void *)skeyBuffer.data(), skeyBuffer.length());
+
+  int size = 1024;
+
+  shared_ptr<void> pKeyBuffer(malloc(size), free);
+  Dbt pkey;
+  pkey.set_data(pKeyBuffer.get());
+  pkey.set_ulen(size);
+  pkey.set_flags(DB_DBT_USERMEM);
+
+  shared_ptr<void> dataBuffer(malloc(size), free);
+  Dbt data;
+  data.set_data(dataBuffer.get());
+  data.set_ulen(size);
+  data.set_flags(DB_DBT_USERMEM);
+
+  int ret = db->pget(NULL, &skey, &pkey, &data, 0);
+  if (ret == DB_NOTFOUND) {
+    throw NotFoundDatabaseException();
+  } else if (ret != 0) {
+    throw GeneralDatabaseException(ret);
+  }
+
+  string pkeyStr((char *)pkey.get_data(), pkey.get_size());
+  string dataStr((char *)data.get_data(), data.get_size());
+
+  return StringPair(pkeyStr, dataStr);
+}
+
 void Database::putRecord(const string &key, const string &value) {
   Dbt dbKey((void *)key.data(), key.length());
   Dbt dbValue((void *)value.data(), value.length());

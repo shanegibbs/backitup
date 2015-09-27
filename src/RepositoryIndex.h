@@ -35,7 +35,8 @@ class RepositoryIndex {
                                             shared_ptr<Repository<K, V>> repo,
                                             KeyExtractorFunc extrator);
 
-  shared_ptr<V> get(const I &i);
+  shared_ptr<pair<K, V>> getValue(const I &i);
+  // shared_ptr<K> getKey(const I &i);
 
   void close();
 

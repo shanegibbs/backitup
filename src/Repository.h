@@ -31,9 +31,9 @@ class Repository {
   }
 
   shared_ptr<V> get(const K &k);
-  void put(const K &k, const V &v);
+  shared_ptr<V> getKey(const K &k);
 
-  // void associate(shared_ptr<Database> secondary);
+  void put(const K &k, const V &v);
 
   shared_ptr<Database> getDb() {
     return db;

@@ -114,10 +114,11 @@ void RepositoryTest::testIndex() {
   i.set_name("subdir");
 
   // check we have the first key/value
-  shared_ptr<NodeRecord> n = idx->get(i);
-  CPPUNIT_ASSERT_EQUAL((unsigned int)1, n->parentid());
-  CPPUNIT_ASSERT_EQUAL(string("subdir"), n->name());
-  CPPUNIT_ASSERT_EQUAL(false, n->leaf());
+  shared_ptr<pair<DatabaseSimpleKey, NodeRecord>> n = idx->getValue(i);
+  CPPUNIT_ASSERT_EQUAL((unsigned int)2, n->first.id());
+  CPPUNIT_ASSERT_EQUAL((unsigned int)1, n->second.parentid());
+  CPPUNIT_ASSERT_EQUAL(string("subdir"), n->second.name());
+  CPPUNIT_ASSERT_EQUAL(false, n->second.leaf());
 }
 
 void RepositoryTest::testParentNameIndexExtractor() {
