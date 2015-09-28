@@ -123,6 +123,28 @@ void NodeRepo::save(Node &n) {
   }
 }
 
+shared_ptr<Node> NodeRepo::getById(unsigned int id) {
+  DatabaseSimpleKey k;
+  k.set_type(NODE);
+  k.set_id(id);
+
+  auto nodeRecord = repo->get(k);
+
+  if (nodeRecord->parentid() > 0) {
+    auto parent = this->getById(nodeRecord->parentid());
+    return Node::create(id, nodeRecord->name(), parent);
+  } else {
+    return Node::create(id, nodeRecord->name(), nullptr);
+  }
+
+}
+
+void NodeRepo::compact() {
+  counter->compact();
+  repo->compact();
+  parentIdx->compact();
+}
+
 int NodeRepo::ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey,
                                        const Dbt *pdata, Dbt *skey) {
   // parse the primary key

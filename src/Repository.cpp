@@ -58,6 +58,11 @@ shared_ptr<V> Repository<K, V>::stringToValue(const string &data) {
   return v;
 }
 
+template <class K, class V>
+void Repository<K, V>::compact() {
+  db->compact();
+}
+
 /*
 template <class K, class V>
 void Repository<K, V>::associate(shared_ptr<Database> secondary) {

@@ -35,6 +35,8 @@ class Repository {
 
   void put(const K &k, const V &v);
 
+  void compact();
+
   shared_ptr<Database> getDb() {
     return db;
   }

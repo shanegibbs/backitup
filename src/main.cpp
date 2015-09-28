@@ -27,10 +27,6 @@ using namespace backitup;
 int main(int argc, char** argv) {
   string backupName = "scratch";
 
-  // auto db = Database::open(backupName + ".db");
-  // auto index = Index::open(backupName + "-index.db");
-  // db->addIndex(index);
-
   NodeRepo repo(backupName);
 
   string path = argv[1];
@@ -50,7 +46,7 @@ int main(int argc, char** argv) {
       cout << "Exists" << endl;
     }
 
-    cout << f->getId() << " " << f->getName() << endl;
+    cout << "Visiting " << f->getId() << " " << f->getName() << endl;
 
   });
 
@@ -61,6 +57,8 @@ int main(int argc, char** argv) {
   // second pass, upload to pool, update hash
 
   printf("Found %d files\n", fileCount);
+
+  repo.compact();
 
   return 0;
 }

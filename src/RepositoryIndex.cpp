@@ -102,6 +102,11 @@ shared_ptr<K> RepositoryIndex<K, V, I>::getKey(const I &i) {
 }
 */
 
+template <class K, class V, class I>
+void RepositoryIndex<K, V, I>::compact() {
+  db->compact();
+}
+
 template class backitup::RepositoryIndex<DatabaseSimpleKey, NodeRecord,
                                          ParentNameIndex>;
 }

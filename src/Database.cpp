@@ -118,6 +118,10 @@ void Database::putRecord(const string &key, const string &value) {
   }
 }
 
+void Database::compact() {
+  db->compact(NULL, NULL, NULL, NULL, DB_FREE_SPACE, NULL);
+}
+
 GeneralDatabaseException::GeneralDatabaseException(int err) : err(err) {
   ostringstream os;
   os << "Failure " << db_strerror(err);

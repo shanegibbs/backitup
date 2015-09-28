@@ -32,7 +32,11 @@ class NodeRepo {
   // not const because we update the id field
   void save(Node &n);
 
+  shared_ptr<Node> getById(unsigned int id);
+
   static int ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey);
+
+  void compact();
 
  private:
   const string name;

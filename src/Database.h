@@ -31,6 +31,7 @@ class Database {
     return db;
   }
 
+  void compact();
   void close();
 
  private:

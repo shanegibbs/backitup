@@ -38,6 +38,7 @@ class RepositoryIndex {
   shared_ptr<pair<K, V>> getValue(const I &i);
   // shared_ptr<K> getKey(const I &i);
 
+  void compact();
   void close();
 
  private:
