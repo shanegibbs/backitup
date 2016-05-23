@@ -34,6 +34,7 @@ template <class K, class V>
 void Repository<K, V>::put(const K &k, const V &v) {
   auto keyBuf = keyToString(k);
   auto valueBuf = valueToString(v);
+  cout << "keysize=" << keyBuf.length() << " valuesze=" << valueBuf.length() << endl;
   db->putRecord(keyBuf, valueBuf);
 }
 

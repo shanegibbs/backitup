@@ -101,7 +101,8 @@ am_libbackitup_la_OBJECTS = libbackitup_la-BackupPath.lo \
 	libbackitup_la-Node.lo libbackitup_la-FileIndex.lo \
 	libbackitup_la-Database.lo libbackitup_la-Database.pb.lo \
 	libbackitup_la-Repository.lo libbackitup_la-RepositoryIndex.lo \
-	libbackitup_la-NodeRepo.lo libbackitup_la-Log.lo
+	libbackitup_la-NodeRepo.lo libbackitup_la-Log.lo \
+	libbackitup_la-TextNodeRepo.lo libbackitup_la-HashFuncs.lo
 libbackitup_la_OBJECTS = $(am_libbackitup_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -293,6 +294,8 @@ localstatedir = @localstatedir@
 mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
+openssl_CFLAGS = @openssl_CFLAGS@
+openssl_LIBS = @openssl_LIBS@
 pdfdir = @pdfdir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
@@ -319,12 +322,17 @@ libbackitup_la_SOURCES = \
 	Repository.cpp \
 	RepositoryIndex.cpp \
 	NodeRepo.cpp \
-	Log.cpp
+	Log.cpp \
+	TextNodeRepo.cpp \
+	HashFuncs.cpp
 
-libbackitup_la_CPPFLAGS = @protobuf_CFLAGS@
+libbackitup_la_CPPFLAGS = @protobuf_CFLAGS@ \
+													@openssl_CFLAGS@
+
 libbackitup_la_LDFLAGS = -module -avoid-version \
   @DB_CXX_LIBS@ \
-	@protobuf_LIBS@
+	@protobuf_LIBS@ \
+	@openssl_LIBS@
 
 backitup_SOURCES = main.cpp
 backitup_CPPFLAGS = -DBOOST_LOG_DYN_LINK
@@ -444,11 +452,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-Database.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-Database.pb.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-FileIndex.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-HashFuncs.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-Log.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-Node.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-NodeRepo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-Repository.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-RepositoryIndex.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libbackitup_la-TextNodeRepo.Plo@am__quote@
 
 .cc.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -533,6 +543,20 @@ libbackitup_la-Log.lo: Log.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Log.cpp' object='libbackitup_la-Log.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbackitup_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbackitup_la-Log.lo `test -f 'Log.cpp' || echo '$(srcdir)/'`Log.cpp
+
+libbackitup_la-TextNodeRepo.lo: TextNodeRepo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbackitup_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbackitup_la-TextNodeRepo.lo -MD -MP -MF $(DEPDIR)/libbackitup_la-TextNodeRepo.Tpo -c -o libbackitup_la-TextNodeRepo.lo `test -f 'TextNodeRepo.cpp' || echo '$(srcdir)/'`TextNodeRepo.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbackitup_la-TextNodeRepo.Tpo $(DEPDIR)/libbackitup_la-TextNodeRepo.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='TextNodeRepo.cpp' object='libbackitup_la-TextNodeRepo.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbackitup_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbackitup_la-TextNodeRepo.lo `test -f 'TextNodeRepo.cpp' || echo '$(srcdir)/'`TextNodeRepo.cpp
+
+libbackitup_la-HashFuncs.lo: HashFuncs.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbackitup_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT libbackitup_la-HashFuncs.lo -MD -MP -MF $(DEPDIR)/libbackitup_la-HashFuncs.Tpo -c -o libbackitup_la-HashFuncs.lo `test -f 'HashFuncs.cpp' || echo '$(srcdir)/'`HashFuncs.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libbackitup_la-HashFuncs.Tpo $(DEPDIR)/libbackitup_la-HashFuncs.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='HashFuncs.cpp' object='libbackitup_la-HashFuncs.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(libbackitup_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o libbackitup_la-HashFuncs.lo `test -f 'HashFuncs.cpp' || echo '$(srcdir)/'`HashFuncs.cpp
 
 backitup-main.o: main.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(backitup_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT backitup-main.o -MD -MP -MF $(DEPDIR)/backitup-main.Tpo -c -o backitup-main.o `test -f 'main.cpp' || echo '$(srcdir)/'`main.cpp

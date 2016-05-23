@@ -10,34 +10,44 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 
 using namespace std;
 
 namespace backitup {
 
 class Node {
-public:
+ public:
   Node(unsigned int id, const string name, shared_ptr<Node> parent);
 
-  const shared_ptr<const string> getFullPath() const;
+  const string getFullPath() const;
 
-  const unsigned int getId() const {
-    return id;
-  }
+  const unsigned int getId() const { return id; }
 
-  void setId(unsigned int id) {
-    this->id = id;
-  }
+  void setId(unsigned int id) { this->id = id; }
 
-  const string &getName() const {
-    return name;
-  }
+  const string& getName() const { return name; }
 
-  shared_ptr<Node> getParent() const {
-    return parent;
-  }
+  shared_ptr<Node> getParent() const { return parent; }
 
-  static shared_ptr<Node> create(int id, const string name, shared_ptr<Node> parent) {
+  long mtime() const { return _mtime; }
+
+  void mtime(long t) { _mtime = t; }
+
+  long size() const { return _size; }
+
+  void size(long s) { _size = s; }
+
+  const string sha256() const { return _sha256; }
+
+  void sha256(const string& s) { _sha256 = s; }
+
+  void addChild(shared_ptr<Node> n) { children_.push_back(n); }
+
+  const vector<shared_ptr<Node>>& children() const { return children_; }
+
+  static shared_ptr<Node> create(int id, const string name,
+                                 shared_ptr<Node> parent) {
     return shared_ptr<Node>(new Node(id, name, parent));
   }
 
@@ -45,10 +55,14 @@ public:
     return shared_ptr<Node>(new Node(0, "", shared_ptr<Node>()));
   }
 
-private:
+ private:
   unsigned int id;
   const string name;
+  long _size;
+  long _mtime;
+  string _sha256;
   shared_ptr<Node> parent;
+  vector<shared_ptr<Node>> children_;
 };
 }
 

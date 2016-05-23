@@ -21,34 +21,44 @@
 #include "RepositoryIndex.h"
 #include "Database.h"
 
+#include "TextNodeRepo.h"
+#include "LocalStorage.h"
+
 using namespace std;
 using namespace backitup;
 
 int main(int argc, char** argv) {
   string backupName = "scratch";
 
-  NodeRepo repo(backupName);
+  TextNodeRepo repo;
 
   string path = argv[1];
-  cout << "Path: " << path << endl;
+  cout << "Backup Path: " << path << endl;
   auto b = BackupPath::create(path);
-  // auto b = BackupPath::create("/home/sgibbs/Documents");
-  // auto b = BackupPath::create("/Users/sgibbs/Downloads");
+
+  auto storage = LocalStorage::create("storage");
 
   unsigned int fileCount = 0;
-  b->visitFiles([&](shared_ptr<Node> f) -> void {
-    // printf("%s\n", f->getFullPath()->c_str());
+  auto root = b->visitFiles([&](shared_ptr<Node> f) -> void {
+    // cout << "* " << f->getFullPath() << endl;
     fileCount++;
 
-    try {
-      repo.save(*f);
-    } catch (ExistsDatabaseException e) {
-      cout << "Exists" << endl;
+    // cout << "Visited " << f->getFullPath() << " " << f->getId() << " " <<
+    // f->getName() << endl;
+
+    if (f->size() > 1024 * 1024) return;
+
+    if (repo.contains(*f)) {
+      return;
     }
 
-    cout << "Visiting " << f->getId() << " " << f->getName() << endl;
+    cout << "Want to backup " << f->getFullPath() << endl;
 
+    storage->send(path, *f);
+    repo.save(*f);
   });
+
+  // repo.save(*root);
 
   // first pass, find new, updated and deleted files
   // new files go into initial state, include metadata but no hash
@@ -58,6 +68,7 @@ int main(int argc, char** argv) {
 
   printf("Found %d files\n", fileCount);
 
+  repo.dump();
   repo.compact();
 
   return 0;

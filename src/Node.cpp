@@ -12,13 +12,11 @@
 
 namespace backitup {
 
-Node::Node(unsigned int id, const string name, shared_ptr<Node> parent) : id(id), name(name), parent(parent) {
+Node::Node(unsigned int id, const string name, shared_ptr<Node> parent)
+    : id(id), name(name), parent(parent) {}
 
-}
-
-const shared_ptr<const string> Node::getFullPath() const {
-
-  stack<const Node*> chain;
+const string Node::getFullPath() const {
+  stack<const Node *> chain;
 
   const Node *n = this;
   while (n) {
@@ -34,7 +32,6 @@ const shared_ptr<const string> Node::getFullPath() const {
     chain.pop();
   }
 
-  return shared_ptr<const string>(new string(ss.str()));
+  return ss.str();
 }
-
 }

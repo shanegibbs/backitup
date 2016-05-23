@@ -15,13 +15,17 @@ libbackitup_la_SOURCES = \
 	Repository.cpp \
 	RepositoryIndex.cpp \
 	NodeRepo.cpp \
-	Log.cpp
+	Log.cpp \
+	TextNodeRepo.cpp \
+	HashFuncs.cpp
 
-libbackitup_la_CPPFLAGS = @protobuf_CFLAGS@
+libbackitup_la_CPPFLAGS = @protobuf_CFLAGS@ \
+													@openssl_CFLAGS@
 
 libbackitup_la_LDFLAGS = -module -avoid-version \
   @DB_CXX_LIBS@ \
-	@protobuf_LIBS@
+	@protobuf_LIBS@ \
+	@openssl_LIBS@
 
 bin_PROGRAMS = backitup
 backitup_SOURCES = main.cpp

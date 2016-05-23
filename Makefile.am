@@ -6,3 +6,5 @@ EXTRA_DIST = autogen.sh
 scratch:
 	mkdir -p scratch/subdir
 	touch scratch/file-a scratch/subdir/file-{a,b,c}
+	echo 0 > scratch/zero
+	echo 1 > scratch/one

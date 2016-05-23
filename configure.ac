@@ -26,6 +26,10 @@ PKG_CHECK_MODULES([cppunit], [cppunit], [], [
   AC_MSG_ERROR([cppunit not found])
 ])
 
+PKG_CHECK_MODULES([openssl], [openssl], [], [
+  AC_MSG_ERROR([openssl not found])
+])
+
 #AX_BOOST_BASE([1.55], [], [
 #  AC_MSG_ERROR([boost not found])
 #])

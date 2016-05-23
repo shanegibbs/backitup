@@ -28,7 +28,7 @@ public:
     return shared_ptr<BackupPath>(new BackupPath(path));
   }
 
-  void visitFiles(function<void(shared_ptr<Node>)> fn) const;
+  shared_ptr<Node> visitFiles(function<void(shared_ptr<Node>)> fn) const;
 
 private:
   const string path;

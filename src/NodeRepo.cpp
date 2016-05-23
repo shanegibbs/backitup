@@ -77,7 +77,7 @@ void NodeRepo::save(Node &n) {
 
   bool found = false;
 
-  // get existing record with parent and name
+  // get existing record with parent id and our name if already exists
   ParentNameIndex p;
   p.set_name(n.getName());
 
@@ -94,33 +94,33 @@ void NodeRepo::save(Node &n) {
     cout << "Node " << n.getId() << " already exists" << endl;
     found = true;
 
+    return;
+
   } catch (NotFoundDatabaseException e) {
     cout << "Node not in db yet" << endl;
   }
 
   // if not exist, insert
 
-  if (!found) {
-    unsigned int id = nextId();
-    n.setId(id);
+  unsigned int id = nextId();
+  n.setId(id);
 
-    DatabaseSimpleKey k;
-    k.set_type(NODE);
-    k.set_id(id);
+  DatabaseSimpleKey k;
+  k.set_type(NODE);
+  k.set_id(id);
 
-    NodeRecord r;
-    if (n.getParent()) {
-      r.set_parentid(n.getParent()->getId());
-    } else {
-      r.set_parentid(0);
-    }
-    r.set_name(n.getName());
-    r.set_leaf(true);
-
-    cout << "Saving Node id:" << k.id() << " parentid:" << r.parentid()
-         << " name:" << r.name() << endl;
-    repo->put(k, r);
+  NodeRecord r;
+  if (n.getParent()) {
+    r.set_parentid(n.getParent()->getId());
+  } else {
+    r.set_parentid(0);
   }
+  r.set_name(n.getName());
+  r.set_leaf(true);
+
+  cout << "Saving Node id:" << k.id() << " parentid:" << r.parentid()
+       << " name:" << r.name() << endl;
+  repo->put(k, r);
 }
 
 shared_ptr<Node> NodeRepo::getById(unsigned int id) {
@@ -136,7 +136,6 @@ shared_ptr<Node> NodeRepo::getById(unsigned int id) {
   } else {
     return Node::create(id, nodeRecord->name(), nullptr);
   }
-
 }
 
 void NodeRepo::compact() {
