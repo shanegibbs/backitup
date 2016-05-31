@@ -82,6 +82,11 @@ void visitFilesRecursive(const string &base, shared_ptr<Node> node,
   }
 }
 
+  struct WatcherContext {
+    long lastUpdate;
+    function<void(shared_ptr<RecordSet>)> fn;
+  };
+
 shared_ptr<Node> BackupPath::visitFiles(
     function<void(shared_ptr<Node>)> fn) const {
   shared_ptr<Node> root = Node::createRoot();
@@ -97,7 +102,7 @@ static void mycallback(ConstFSEventStreamRef streamRef,
   int i;
   char **paths = (char **)eventPaths;
 
-  // auto info = (struct WatcherContext*) clientCallBackInfo;
+  auto info = (struct WatcherContext*) clientCallBackInfo;
 
   // printf("Callback called\n");
   for (i = 0; i < numEvents; i++) {
@@ -143,7 +148,7 @@ static void mycallback(ConstFSEventStreamRef streamRef,
       cout << "IsSym" << endl;
     }
 
-    shared_ptr<RecordSet> rs = shared_ptr<RecordSet>();
+    shared_ptr<RecordSet> rs = shared_ptr<RecordSet>(new RecordSet());
     rs->path(paths[i]);
 
     DIR *d;
@@ -183,14 +188,11 @@ static void mycallback(ConstFSEventStreamRef streamRef,
         }
       }
       closedir(d);
+      
+      info->fn(rs);
     }
   }
 }
-
-struct WatcherContext {
-  long lastUpdate;
-  function<void(shared_ptr<RecordSet>)> fn;
-};
 
 void BackupPath::watchFiles(function<void(shared_ptr<RecordSet>)> fn) const {
   std::thread t([&]() {

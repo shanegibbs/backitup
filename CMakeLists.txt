@@ -10,6 +10,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -fvisibility=hidden")
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer -g -gstabs")
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -ggdb")
 
+link_directories(/usr/local/lib)
+
 # boost
 
 set(BOOST_ROOT /usr/lib/sc-boost-1.59.0)

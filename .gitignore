@@ -53,3 +53,4 @@ Makefile
 /config.guess
 /config.sub
 /ltmain.sh
+/local-build.env
