@@ -8,20 +8,20 @@
 /* MAC */
 #include <CoreServices/CoreServices.h>
 
-#include <thread>
+#include <ctime>
 #include <dirent.h>
+#include <functional>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <iostream>
-#include <functional>
-#include <ctime>
+#include <thread>
 
 #include <boost/filesystem/operations.hpp>
 
 #include "BackupPath.h"
-#include "Record.h"
 #include "Node.h"
+#include "Record.h"
 
 namespace backitup {
 
@@ -82,10 +82,10 @@ void visitFilesRecursive(const string &base, shared_ptr<Node> node,
   }
 }
 
-  struct WatcherContext {
-    long lastUpdate;
-    function<void(shared_ptr<RecordSet>)> fn;
-  };
+struct WatcherContext {
+  long lastUpdate;
+  function<void(shared_ptr<RecordSet>)> fn;
+};
 
 shared_ptr<Node> BackupPath::visitFiles(
     function<void(shared_ptr<Node>)> fn) const {
@@ -102,7 +102,7 @@ static void mycallback(ConstFSEventStreamRef streamRef,
   int i;
   char **paths = (char **)eventPaths;
 
-  auto info = (struct WatcherContext*) clientCallBackInfo;
+  auto info = (struct WatcherContext *)clientCallBackInfo;
 
   // printf("Callback called\n");
   for (i = 0; i < numEvents; i++) {
@@ -188,7 +188,7 @@ static void mycallback(ConstFSEventStreamRef streamRef,
         }
       }
       closedir(d);
-      
+
       info->fn(rs);
     }
   }
