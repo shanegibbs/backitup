@@ -13,6 +13,8 @@
 #include <string>
 #include <vector>
 
+#include "Record.h"
+
 using namespace std;
 
 namespace backitup {
@@ -29,6 +31,8 @@ public:
   }
 
   shared_ptr<Node> visitFiles(function<void(shared_ptr<Node>)> fn) const;
+
+  void watchFiles(function<void(shared_ptr<RecordSet>)> fn) const;
 
 private:
   const string path;

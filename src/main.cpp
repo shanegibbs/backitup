@@ -28,6 +28,11 @@ using namespace std;
 using namespace backitup;
 
 int main(int argc, char** argv) {
+  if (argc < 2) {
+    cout << "Not path" << endl;
+    return 1;
+  }
+
   string backupName = "scratch";
 
   TextNodeRepo repo;
@@ -38,9 +43,13 @@ int main(int argc, char** argv) {
 
   auto storage = LocalStorage::create("storage");
 
+  b->watchFiles([&](shared_ptr<RecordSet> rs) -> void {
+      cout << "Trigger on " << rs->path() << endl;
+      repo.save(*rs);
+  });
+
   unsigned int fileCount = 0;
   auto root = b->visitFiles([&](shared_ptr<Node> f) -> void {
-    // cout << "* " << f->getFullPath() << endl;
     fileCount++;
 
     // cout << "Visited " << f->getFullPath() << " " << f->getId() << " " <<
@@ -49,14 +58,19 @@ int main(int argc, char** argv) {
     if (f->size() > 1024 * 1024) return;
 
     if (repo.contains(*f)) {
+      // cout << "Already have " << f->getFullPath() << endl;
       return;
     }
 
-    cout << "Want to backup " << f->getFullPath() << endl;
+    cout << "Want to backup (no mtime,size match found in index) " << f->getFullPath() << endl;
 
+    // order is important here
     storage->send(path, *f);
     repo.save(*f);
+
   });
+
+  sleep(100000);
 
   // repo.save(*root);
 

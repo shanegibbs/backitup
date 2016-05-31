@@ -15,6 +15,8 @@ file(GLOB lib_SRC
   "*.cpp"
 )
 
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -framework CoreServices")
+
 add_executable(backitup-bin ${lib_SRC} Database.pb.cc)
 set_target_properties(backitup-bin PROPERTIES OUTPUT_NAME backitup)
 target_link_libraries(backitup-bin boost_system)

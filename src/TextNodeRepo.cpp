@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Node.h"
+#include "Record.h"
 
 using namespace std;
 
@@ -35,15 +36,20 @@ TextNodeRepo::TextNodeRepo() {
   cout << "Loading scratch.txt.db" << endl;
   ifstream in("scratch.txt.db");
 
+  unsigned int count = 0;
+
   string line;
   while (getline(in, line)) {
+    Record rec(line);
+
+    records[rec.name()].push_back(rec);
     // cout << "Loaded " << line << endl;
-    // records.push_back(line);
+    count++;
   }
 
   in.close();
 
-  cout << "Loaded " << records.size() << " records" << endl;
+  cout << "Loaded " << count << " records" << endl;
 }
 
 void TextNodeRepo::dump() {
@@ -69,26 +75,34 @@ void TextNodeRepo::dump() {
 }
 
 bool TextNodeRepo::contains(Node &n) {
+  // Called when we want to check a file needs backing up: have no hash at this
+  // point
+  // Also after sent to storage: DO have hash at this point
+
   // TODO this is too crude. Need to check only latest version of file.
   auto recs = records[n.getFullPath()];
+  if (recs.size() == 0) {
+    cout << "No records found for " << n.getFullPath() << endl;
+  }
+
   for (Record &rec : recs) {
-    if ((n.sha256().empty() || n.sha256() == rec.hash()) && n.size() == rec.size() && n.mtime() == rec.timestamp()) {
+    // size mismatch
+    if (n.size() != rec.size()) {
+      continue;
+    }
+
+    if (n.mtime() != rec.timestamp()) {
+      continue;
+    }
+
+    if (n.sha256().empty()) {
       return true;
+    } else if (n.sha256() == rec.hash()) {
+      return true;
+    } else if (n.sha256() != rec.hash()) {
+      continue;
     }
   }
-
-  /*
-  for (string &r : records) {
-    Record rec = r;
-
-    if (n.getFullPath() == rec.name()) {
-      if (n.mtime() == rec.timestamp() && n.size() == rec.size()) {
-        // cout << "We already have " << n.getFullPath() << endl;
-        return false;
-      }
-    }
-  }
-  */
 
   return false;
 }
@@ -128,5 +142,9 @@ void TextNodeRepo::save(Node &n) {
 
   records.push_back(ss.str());
   */
+}
+
+void TextNodeRepo::save(RecordSet &r) {
+  cout << "Saving RecordSet" << endl;
 }
 }
