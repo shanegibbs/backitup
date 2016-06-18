@@ -1,9 +1,9 @@
 #include "LocalStorage.h"
 
-#include <sys/stat.h>
+#include <cstdio>
 #include <fstream>
 #include <iostream>
-#include <cstdio>
+#include <sys/stat.h>
 
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
@@ -43,11 +43,11 @@ void LocalStorage::send(const string& base_path, Node& n) {
   }
 
   string source = base_path + n.getFullPath();
-  cout << "Sending " << source << endl;
 
   ifstream file(source, ios::in | ios::binary);
   if (!file.is_open()) {
-    cout << "ERROR failed to open " << source << endl;
+    cout << "ERROR LocalStorage failed to open " << source << endl;
+    return;
   }
 
   while (file) {
@@ -65,12 +65,15 @@ void LocalStorage::send(const string& base_path, Node& n) {
 
   string final_name = _path + "/" + hash_str;
   if (boost::filesystem::exists(final_name)) {
+    // cout << "LocalStorage already store: " << hash_str << endl;
+    remove(tmp_path.c_str());
     return;
   }
+  cout << "LocalStorage storing: " << hash_str << endl;
 
-  cout << "Storing " << n.getFullPath() << endl;
-  rename(tmp_path.c_str(), final_name.c_str());
-
-  cout << hash_str << endl;
+  if (rename(tmp_path.c_str(), final_name.c_str()) != 0) {
+    cerr << "Failed to rename file " << tmp_path << " to " << final_name << ": "
+         << strerror(errno) << endl;
+  }
 }
 }

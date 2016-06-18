@@ -1,10 +1,11 @@
 #ifndef TEXT_NODE_REPO_H_
 #define TEXT_NODE_REPO_H_
 
-#include <vector>
-#include <string>
 #include <map>
+#include <string>
+#include <vector>
 
+#include "Node.h"
 #include "Record.h"
 
 namespace backitup {
@@ -14,17 +15,19 @@ class Node;
 class TextNodeRepo {
  public:
   TextNodeRepo();
-  bool contains(Node &n);
-  void save(Node &n);
-  void save(RecordSet &r);
+  bool contains(const Node &n);
+  void save(const Node &n);
   void compact() {}
 
-  const Node &getParent(Node &n);
+  NodeListRef latestListOfPath(const string &path);
+  NodeListRef diff(NodeListRef r);
+
+  const Node &getParent(const Node &n);
 
   void dump();
 
  private:
-  std::map<std::string, std::vector<Record>> records;
+  std::map<std::string, std::map<std::string, std::vector<Record>>> records;
 };
 }
 

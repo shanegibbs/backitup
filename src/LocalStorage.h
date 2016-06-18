@@ -14,7 +14,7 @@ class LocalStorage {
   }
 
   LocalStorage(const std::string& path);
-  void send(const string& base_path, Node &n);
+  void send(const string& base_path, Node& n);
 
  private:
   std::string _path;

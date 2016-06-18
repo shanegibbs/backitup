@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "Record.h"
+#include "Node.h"
 
 using namespace std;
 
@@ -23,7 +23,7 @@ class Node;
 class FileIndex;
 
 class BackupPath {
-public:
+ public:
   BackupPath(const string path);
 
   static shared_ptr<BackupPath> create(const string path) {
@@ -32,9 +32,9 @@ public:
 
   shared_ptr<Node> visitFiles(function<void(shared_ptr<Node>)> fn) const;
 
-  void watchFiles(function<void(shared_ptr<RecordSet>)> fn) const;
+  void watchFiles(function<void(NodeListRef)> fn) const;
 
-private:
+ private:
   const string path;
 };
 }

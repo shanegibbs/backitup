@@ -8,8 +8,9 @@
 #ifndef NODE_H_
 #define NODE_H_
 
-#include <string>
+#include <iostream>
 #include <memory>
+#include <string>
 #include <vector>
 
 using namespace std;
@@ -27,6 +28,10 @@ class Node {
   void setId(unsigned int id) { this->id = id; }
 
   const string& getName() const { return name; }
+
+  const string& path() const { return _path; }
+
+  void path(string& p) { _path = p; }
 
   shared_ptr<Node> getParent() const { return parent; }
 
@@ -55,14 +60,39 @@ class Node {
     return shared_ptr<Node>(new Node(0, "", shared_ptr<Node>()));
   }
 
+  void dump() const {
+    cout << "Node [path=" << _path << ", name=" << name << ", mtime=" << _mtime
+         << ", size=" << _size << ", sha256=" << _sha256 << "]" << endl;
+  }
+
  private:
   unsigned int id;
+  string _path;
   const string name;
   long _size;
   long _mtime;
   string _sha256;
   shared_ptr<Node> parent;
   vector<shared_ptr<Node>> children_;
+};
+
+class NodeList;
+typedef std::shared_ptr<NodeList> NodeListRef;
+
+class NodeList {
+ public:
+  static NodeListRef New(const std::string& p) {
+    return NodeListRef(new NodeList(p));
+  }
+  const std::vector<Node>& list() const { return _list; }
+  void add(Node& n) { _list.push_back(n); }
+
+  const string& path() const { return _path; }
+
+ private:
+  NodeList(const std::string& p) { _path = p; }
+  std::string _path;
+  std::vector<Node> _list;
 };
 }
 

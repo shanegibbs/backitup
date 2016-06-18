@@ -16,22 +16,26 @@ Node::Node(unsigned int id, const string name, shared_ptr<Node> parent)
     : id(id), name(name), parent(parent) {}
 
 const string Node::getFullPath() const {
-  stack<const Node *> chain;
-
-  const Node *n = this;
-  while (n) {
-    chain.push(n);
-    n = n->parent.get();
-  }
-
   std::stringstream ss;
-  while (!chain.empty()) {
-    n = chain.top();
-    if (!n->name.empty()) ss << "/";
-    ss << n->name;
-    chain.pop();
-  }
 
+  if (!_path.empty()) {
+    ss << _path << name;
+  } else {
+    stack<const Node *> chain;
+
+    const Node *n = this;
+    while (n) {
+      chain.push(n);
+      n = n->parent.get();
+    }
+
+    while (!chain.empty()) {
+      n = chain.top();
+      if (!n->name.empty()) ss << "/";
+      ss << n->name;
+      chain.pop();
+    }
+  }
   return ss.str();
 }
 }

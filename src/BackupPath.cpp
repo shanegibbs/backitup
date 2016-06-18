@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <thread>
 
+#include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 
 #include "BackupPath.h"
@@ -84,7 +85,8 @@ void visitFilesRecursive(const string &base, shared_ptr<Node> node,
 
 struct WatcherContext {
   long lastUpdate;
-  function<void(shared_ptr<RecordSet>)> fn;
+  function<void(NodeListRef)> fn;
+  string path;
 };
 
 shared_ptr<Node> BackupPath::visitFiles(
@@ -110,7 +112,7 @@ static void mycallback(ConstFSEventStreamRef streamRef,
     // printf("Change %llu in %s, flags %lu\n", eventIds[i], paths[i],
     //        eventFlags[i]);
 
-    cout << "PING " << paths[i] << endl;
+    // cout << "PING " << paths[i] << endl;
 
     // cout << hex << eventFlags[i] << dec << endl;
 
@@ -148,8 +150,10 @@ static void mycallback(ConstFSEventStreamRef streamRef,
       cout << "IsSym" << endl;
     }
 
-    shared_ptr<RecordSet> rs = shared_ptr<RecordSet>(new RecordSet());
-    rs->path(paths[i]);
+    // cout << "info->path.length() = " << info->path.length() << endl;
+    auto updated_path = string(paths[i]).substr(info->path.length());
+
+    auto nl = NodeList::New(updated_path);
 
     DIR *d;
     struct dirent *dir;
@@ -162,9 +166,9 @@ static void mycallback(ConstFSEventStreamRef streamRef,
         if (dir->d_type == DT_DIR) {
           // rs.addDir(string(dir->d_name));
         } else if (dir->d_type == DT_REG) {
-          Record r;
           string filename = string(paths[i]) + string(dir->d_name);
-          r.name(filename);
+          Node n(0, string(dir->d_name), nullptr);
+          n.path(updated_path);
           struct stat s;
           if (stat(filename.c_str(), &s) == -1) {
             cout << "Failed to read " << filename << endl;
@@ -175,26 +179,27 @@ static void mycallback(ConstFSEventStreamRef streamRef,
 
             if (ctime > mtime) mtime = ctime;
 
-            r.size(s.st_size);
-            r.timestamp(mtime);
+            n.size(s.st_size);
+            n.mtime(mtime);
 
-            cout << "name " << filename << ", mtime " << mtime << ", size "
-                 << s.st_size << endl;
+/* cout << "name " << filename << ", mtime " << mtime << ", size "
+ << s.st_size << endl; */
+
 #else
 #error TODO Linux support for mtime
 #endif
-            rs->addRecord(r);
+            nl->add(n);
           }
         }
       }
       closedir(d);
 
-      info->fn(rs);
+      info->fn(nl);
     }
   }
 }
 
-void BackupPath::watchFiles(function<void(shared_ptr<RecordSet>)> fn) const {
+void BackupPath::watchFiles(function<void(NodeListRef)> fn) const {
   std::thread t([&]() {
     long int t = static_cast<long int>(time(NULL));
 
@@ -217,6 +222,8 @@ void BackupPath::watchFiles(function<void(shared_ptr<RecordSet>)> fn) const {
         (struct WatcherContext *)calloc(sizeof(struct WatcherContext), 1);
     info->lastUpdate = t;
     info->fn = fn;
+
+    info->path = boost::filesystem::canonical(path).native();
 
     context->info = info;
 
