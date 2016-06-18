@@ -89,9 +89,13 @@ class NodeList {
 
   const string& path() const { return _path; }
 
+  void mtime(long m) { _mtime = m; }
+  long mtime() const { return _mtime; }
+
  private:
   NodeList(const std::string& p) { _path = p; }
   std::string _path;
+  long _mtime;
   std::vector<Node> _list;
 };
 }

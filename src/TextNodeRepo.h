@@ -17,6 +17,7 @@ class TextNodeRepo {
   TextNodeRepo();
   bool contains(const Node &n);
   void save(const Node &n);
+  void deleted(const Node &n, long mtime);
   void compact() {}
 
   NodeListRef latestListOfPath(const string &path);

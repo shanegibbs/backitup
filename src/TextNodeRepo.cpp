@@ -129,6 +129,9 @@ bool TextNodeRepo::contains(const Node &n) {
 }
 
 void TextNodeRepo::save(const Node &n) {
+  cout << "TextNodeRepo Saving ";
+  n.dump();
+
   stringstream ss;
 
   if (n.sha256().empty()) {
@@ -136,7 +139,11 @@ void TextNodeRepo::save(const Node &n) {
     exit(1);
   }
 
-  if (contains(n)) return;
+  if (contains(n)) {
+    cout << "TextNodeRepo Not saving. Already contains ";
+    n.dump();
+    return;
+  }
 
   Record rec;
   string path = n.path();
@@ -153,6 +160,13 @@ void TextNodeRepo::save(const Node &n) {
   auto &names = records[path];
   auto &recs = names[n.getName()];
   recs.push_back(rec);
+}
+
+void TextNodeRepo::deleted(const Node &n, long mtime) {
+  Node a = n;
+  a.sha256(string("_"));
+  a.mtime(mtime);
+  save(a);
 }
 
 NodeListRef TextNodeRepo::latestListOfPath(const string &path) {

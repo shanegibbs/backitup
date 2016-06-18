@@ -154,6 +154,15 @@ static void mycallback(ConstFSEventStreamRef streamRef,
     auto updated_path = string(paths[i]).substr(info->path.length());
 
     auto nl = NodeList::New(updated_path);
+    {
+      struct stat s;
+      if (stat(paths[i], &s) == -1) {
+        cout << "Failed to read " << paths[i] << endl;
+      } else {
+        nl->mtime(s.st_mtime);
+        // cout << "mtime of " << paths[i] << ": " << s.st_mtime << endl;
+      }
+    }
 
     DIR *d;
     struct dirent *dir;
@@ -181,9 +190,6 @@ static void mycallback(ConstFSEventStreamRef streamRef,
 
             n.size(s.st_size);
             n.mtime(mtime);
-
-/* cout << "name " << filename << ", mtime " << mtime << ", size "
- << s.st_size << endl; */
 
 #else
 #error TODO Linux support for mtime

@@ -60,9 +60,6 @@ int main(int argc, char** argv) {
         Node a = n;
         storage->send(path, a);
         repo.save(a);
-
-        repo.dump();
-        repo.compact();
       }
     }
 
@@ -77,8 +74,13 @@ int main(int argc, char** argv) {
       if (found == nullptr) {
         cout << "Deleted ";
         a.dump();
+        repo.deleted(a, nl->mtime());
       }
     }
+
+    repo.dump();
+    repo.compact();
+
   });
 
   unsigned int fileCount = 0;
