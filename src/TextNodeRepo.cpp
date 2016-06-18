@@ -181,6 +181,9 @@ NodeListRef TextNodeRepo::latestListOfPath(const string &path) {
         latest = &r;
       }
     }
+    if (latest->hash() == "_") {
+      continue;
+    }
     Node n = Node(0, latest->name(), nullptr);
     n.path(latest->path());
     n.mtime(latest->timestamp());
