@@ -20,6 +20,8 @@ namespace backitup {
 class Node {
  public:
   Node(unsigned int id, const string name, shared_ptr<Node> parent);
+  Node(const string path, const string name, long mtime, long size,
+       string sha256);
 
   const string getFullPath() const;
 

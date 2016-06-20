@@ -30,11 +30,16 @@ class BackupPath {
     return shared_ptr<BackupPath>(new BackupPath(path));
   }
 
-  shared_ptr<Node> visitFiles(function<void(shared_ptr<Node>)> fn) const;
+  shared_ptr<Node> visitFiles(
+      function<void(const string &path, shared_ptr<Node>)> fn) const;
 
   void watchFiles(function<void(NodeListRef)> fn) const;
 
  private:
+  void visitFilesRecursive(
+      const string &base, shared_ptr<Node> node,
+      function<void(const string &, shared_ptr<Node>)> fn) const;
+
   const string path;
 };
 }

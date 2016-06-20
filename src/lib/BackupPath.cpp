@@ -38,8 +38,9 @@ static string ts_to_string(long ts) {
 }
 */
 
-void visitFilesRecursive(const string &base, shared_ptr<Node> node,
-                         function<void(shared_ptr<Node>)> fn) {
+void BackupPath::visitFilesRecursive(
+    const string &base, shared_ptr<Node> node,
+    function<void(const string &, shared_ptr<Node>)> fn) const {
   DIR *d;
   struct dirent *dir;
   string fullPath = base + node->getFullPath();
@@ -54,7 +55,7 @@ void visitFilesRecursive(const string &base, shared_ptr<Node> node,
       if (dir->d_type == DT_DIR) {
         child->mtime(0);
         child->size(0);
-        fn(child);
+        fn(path, child);
         visitFilesRecursive(base, child, fn);
 
       } else if (dir->d_type == DT_REG) {
@@ -76,7 +77,7 @@ void visitFilesRecursive(const string &base, shared_ptr<Node> node,
 #endif
         }
 
-        fn(child);
+        fn(path, child);
       }
     }
     closedir(d);
@@ -90,7 +91,7 @@ struct WatcherContext {
 };
 
 shared_ptr<Node> BackupPath::visitFiles(
-    function<void(shared_ptr<Node>)> fn) const {
+    function<void(const string &, shared_ptr<Node>)> fn) const {
   shared_ptr<Node> root = Node::createRoot();
   visitFilesRecursive(path, Node::createRoot(), fn);
   return root;

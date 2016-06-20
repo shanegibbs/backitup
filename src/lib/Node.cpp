@@ -15,6 +15,10 @@ namespace backitup {
 Node::Node(unsigned int id, const string name, shared_ptr<Node> parent)
     : id(id), name(name), parent(parent) {}
 
+Node::Node(const string path, const string name, long mtime, long size,
+           string sha256)
+    : _path(path), name(name), _size(size), _mtime(mtime), _sha256(sha256) {}
+
 const string Node::getFullPath() const {
   std::stringstream ss;
 

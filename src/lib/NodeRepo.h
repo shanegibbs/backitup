@@ -11,9 +11,9 @@
 #include <memory>
 #include <string>
 
+#include "Database.pb.h"
 #include "Repository.h"
 #include "RepositoryIndex.h"
-#include "Database.pb.h"
 
 using namespace std;
 
@@ -34,7 +34,8 @@ class NodeRepo {
 
   shared_ptr<Node> getById(unsigned int id);
 
-  static int ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey, const Dbt *pdata, Dbt *skey);
+  static int ParentNameIndexExtractor(Db *sdbp, const Dbt *pkey,
+                                      const Dbt *pdata, Dbt *skey);
 
   void compact();
 
@@ -43,7 +44,8 @@ class NodeRepo {
   shared_ptr<Database> db;
   shared_ptr<Repository<DatabaseSimpleKey, CounterRecord>> counter;
   shared_ptr<Repository<DatabaseSimpleKey, NodeRecord>> repo;
-  shared_ptr<RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>> parentIdx;
+  shared_ptr<RepositoryIndex<DatabaseSimpleKey, NodeRecord, ParentNameIndex>>
+      parentIdx;
 
   unsigned int nextId();
 };

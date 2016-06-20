@@ -61,9 +61,8 @@ TextNodeRepo::TextNodeRepo() {
   cout << "Loaded " << count << " records" << endl;
 }
 
-void TextNodeRepo::dump() {
+void TextNodeRepo::flush() {
   std::ofstream out("scratch.txt.db");
-
   for (auto &p : records) {
     for (auto &d : p.second) {
       for (auto &r : d.second) {
@@ -71,17 +70,6 @@ void TextNodeRepo::dump() {
       }
     }
   }
-  /*
-  {
-    stringstream ss;
-    for (string &s : records) {
-      ss << s << endl;
-    }
-    // cout << ss.str();
-    out << ss.str();
-  }
-  */
-
   out.close();
 }
 
@@ -135,8 +123,7 @@ void TextNodeRepo::save(const Node &n) {
   stringstream ss;
 
   if (n.sha256().empty()) {
-    cout << "Hash is empty" << endl;
-    exit(1);
+    throw TextNodeRepoSaveException("Field sha256 missing");
   }
 
   if (contains(n)) {
@@ -169,7 +156,7 @@ void TextNodeRepo::deleted(const Node &n, long mtime) {
   save(a);
 }
 
-NodeListRef TextNodeRepo::latestListOfPath(const string &path) {
+NodeList TextNodeRepo::latestListOfPath(const string &path) {
   // cout << "TextNodeRepo generating latest NodeList of " << path << endl;
   auto list = NodeList::New(path);
 
@@ -193,6 +180,6 @@ NodeListRef TextNodeRepo::latestListOfPath(const string &path) {
     list->add(n);
   }
 
-  return list;
+  return *list;
 }
 }

@@ -4,10 +4,11 @@
 #include <memory>
 
 #include "Node.h"
+#include "Storage.h"
 
 namespace backitup {
 
-class LocalStorage {
+class LocalStorage : public Storage {
  public:
   static std::shared_ptr<LocalStorage> create(const std::string& path) {
     return std::shared_ptr<LocalStorage>(new LocalStorage(path));

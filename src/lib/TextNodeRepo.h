@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+#include "Index.h"
 #include "Node.h"
 #include "Record.h"
 
@@ -12,7 +13,15 @@ namespace backitup {
 
 class Node;
 
-class TextNodeRepo {
+class TextNodeRepoSaveException : public std::runtime_error {
+ public:
+  TextNodeRepoSaveException() : runtime_error("Unable to save node") {}
+  TextNodeRepoSaveException(std::string msg)
+      : runtime_error(
+            string(string("Unable to save node: ").append(msg)).c_str()) {}
+};
+
+class TextNodeRepo : public Index {
  public:
   TextNodeRepo();
   bool contains(const Node &n);
@@ -20,12 +29,14 @@ class TextNodeRepo {
   void deleted(const Node &n, long mtime);
   void compact() {}
 
-  NodeListRef latestListOfPath(const string &path);
+  NodeList latestListOfPath(const string &path);
   NodeListRef diff(NodeListRef r);
 
   const Node &getParent(const Node &n);
 
-  void dump();
+  void flush();
+
+  enum ReturnCodes { FailedToSave };
 
  private:
   std::map<std::string, std::map<std::string, std::vector<Record>>> records;
