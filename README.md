@@ -35,7 +35,7 @@ Tab delimited compressed text file. One record per row. Fields:
 PATH TIMESTAMP SIZE CHECKSUM
 ```
 
-PATH - Relative file path from the root backup directory.
-TIMESTAMP - Time of file creation or modification, whichever is greater.
-SIZE - File size in bytes.
-CHECKSUM - Result of file bytes put though a SHA256 hash function.
+* PATH - Relative file path from the root backup directory.
+* TIMESTAMP - Time of file creation or modification, whichever is greater.
+* SIZE - File size in bytes.
+* CHECKSUM - Result of file bytes put though a SHA256 hash function.
