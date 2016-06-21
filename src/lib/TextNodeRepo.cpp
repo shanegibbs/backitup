@@ -156,7 +156,7 @@ void TextNodeRepo::deleted(const Node &n, long mtime) {
   save(a);
 }
 
-NodeList TextNodeRepo::latestListOfPath(const string &path) {
+NodeList TextNodeRepo::latest(const string &path) {
   // cout << "TextNodeRepo generating latest NodeList of " << path << endl;
   auto list = NodeList::New(path);
 

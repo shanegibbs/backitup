@@ -86,7 +86,8 @@ void BackupPath::visitFilesRecursive(
 
 struct WatcherContext {
   long lastUpdate;
-  function<void(NodeListRef)> fn;
+  function<void(const string &, NodeListRef)> fn;
+  string base_path;
   string path;
 };
 
@@ -201,12 +202,13 @@ static void mycallback(ConstFSEventStreamRef streamRef,
       }
       closedir(d);
 
-      info->fn(nl);
+      info->fn(info->base_path, nl);
     }
   }
 }
 
-void BackupPath::watchFiles(function<void(NodeListRef)> fn) const {
+void BackupPath::watchFiles(
+    function<void(const string &, NodeListRef)> fn) const {
   std::thread t([&]() {
     long int t = static_cast<long int>(time(NULL));
 
@@ -229,6 +231,7 @@ void BackupPath::watchFiles(function<void(NodeListRef)> fn) const {
         (struct WatcherContext *)calloc(sizeof(struct WatcherContext), 1);
     info->lastUpdate = t;
     info->fn = fn;
+    info->base_path = path;
 
     info->path = boost::filesystem::canonical(path).native();
 
