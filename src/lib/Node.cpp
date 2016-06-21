@@ -23,7 +23,7 @@ const string Node::getFullPath() const {
   std::stringstream ss;
 
   if (!_path.empty()) {
-    ss << _path << name;
+    ss << _path << "/" << name;
   } else {
     stack<const Node *> chain;
 

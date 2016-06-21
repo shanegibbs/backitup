@@ -8,12 +8,17 @@ void Backitup::run(BackupPath& b) {
   // start watcher
 
   b.watchFiles([&](const string& path, NodeListRef nl) -> void {
-    // cout << "\nTrigger on " << nl->path() << endl;
+    // cerr << "WATCH DISABLED" << endl;
+    // return;
+
+    bool changed = false;
 
     auto stored = _index.latest(nl->path());
 
     // check for new nodes
     for (auto& n : nl->list()) {
+      if (n.getName() == "scratch.txt.db") continue;
+
       const Node* found = nullptr;
       for (auto& a : stored.list()) {
         if (a.getName() == n.getName() && a.mtime() == n.mtime() &&
@@ -27,6 +32,7 @@ void Backitup::run(BackupPath& b) {
         Node a = n;
         _store.send(path, a);
         _index.save(a);
+        changed = true;
       }
     }
 
@@ -42,10 +48,16 @@ void Backitup::run(BackupPath& b) {
         cout << "Deleted ";
         a.dump();
         _index.deleted(a, nl->mtime());
+        changed = true;
       }
     }
 
-    _index.flush();
+    if (changed) {
+      cout << "\nTrigged on " << nl->path() << endl << endl;
+      _index.flush();
+    }
+
+    sleep(1);
 
   });
 
@@ -53,14 +65,16 @@ void Backitup::run(BackupPath& b) {
 
   unsigned int fileCount = 0;
   auto root = b.visitFiles([&](const string& path, shared_ptr<Node> f) -> void {
+    if (f->getName() == "scratch.txt.db") return;
+
     fileCount++;
     if (f->size() > 1024 * 1024) return;
     if (_index.contains(*f)) {
       return;
     }
 
-    cout << "Want to backup (no mtime,size match found in index) "
-         << f->getFullPath() << endl;
+    cout << "Scan new ";
+    f->dump();
 
     // order is important here
     _store.send(path, *f);

@@ -26,7 +26,8 @@
 
 namespace backitup {
 
-BackupPath::BackupPath(const std::string p) : path(p) {}
+BackupPath::BackupPath(const std::string p, vector<string> e)
+    : path(p), excludes(e) {}
 
 /*
 static string ts_to_string(long ts) {
@@ -44,18 +45,31 @@ void BackupPath::visitFilesRecursive(
   DIR *d;
   struct dirent *dir;
   string fullPath = base + node->getFullPath();
+
+  // stop if we hit an excludes
+  for (auto &e : excludes) {
+    if (fullPath == e) {
+      cout << "Skipping " << fullPath << endl;
+      return;
+    }
+  }
+
+  const string child_path = node->getFullPath();
+
   d = opendir(fullPath.c_str());
   if (d) {
     while ((dir = readdir(d)) != NULL) {
       if (strcmp(dir->d_name, ".") == 0) continue;
       if (strcmp(dir->d_name, "..") == 0) continue;
       shared_ptr<Node> child(new Node(0, dir->d_name, node));
+      child->path(child_path);
+
       node->addChild(child);
 
       if (dir->d_type == DT_DIR) {
         child->mtime(0);
         child->size(0);
-        fn(path, child);
+        // fn(path, child); Skip DIRs for now
         visitFilesRecursive(base, child, fn);
 
       } else if (dir->d_type == DT_REG) {

@@ -33,7 +33,7 @@ class Node {
 
   const string& path() const { return _path; }
 
-  void path(string& p) { _path = p; }
+  void path(const string& p) { _path = p; }
 
   shared_ptr<Node> getParent() const { return parent; }
 

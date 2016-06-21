@@ -24,11 +24,7 @@ class FileIndex;
 
 class BackupPath {
  public:
-  BackupPath(const string path);
-
-  static shared_ptr<BackupPath> create(const string path) {
-    return shared_ptr<BackupPath>(new BackupPath(path));
-  }
+  BackupPath(const string path, vector<string> e);
 
   shared_ptr<Node> visitFiles(
       function<void(const string &path, shared_ptr<Node>)> fn) const;
@@ -41,6 +37,7 @@ class BackupPath {
       function<void(const string &, shared_ptr<Node>)> fn) const;
 
   const string path;
+  vector<string> excludes;
 };
 }
 

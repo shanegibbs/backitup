@@ -49,16 +49,16 @@ TextNodeRepo::TextNodeRepo() {
   string line;
   while (getline(in, line)) {
     Record rec(line);
-    rec.dump();
+    // rec.dump();
 
     records[rec.path()][rec.name()].push_back(rec);
-    cout << count << " Loaded " << rec.name() << endl;
+    // cout << count << " Loaded " << rec.name() << endl;
     count++;
   }
 
   in.close();
 
-  cout << "Loaded " << count << " records" << endl;
+  // cout << "Loaded " << count << " records" << endl;
 }
 
 void TextNodeRepo::flush() {
@@ -85,13 +85,13 @@ bool TextNodeRepo::contains(const Node &n) {
   }
   auto names = records[path];
   if (names.size() == 0) {
-    cout << "TextNodeRepo does not contain path " << n.path() << endl;
+    // cout << "TextNodeRepo does not contain path " << n.path() << endl;
   }
 
   auto recs = names[n.getName()];
   if (recs.size() == 0) {
-    cout << "TextNodeRepo does not contain " << n.getName() << " in "
-         << n.path() << endl;
+    // cout << "TextNodeRepo does not contain " << n.getName() << " in "
+    //      << n.path() << endl;
   }
 
   for (Record &rec : recs) {
@@ -117,8 +117,8 @@ bool TextNodeRepo::contains(const Node &n) {
 }
 
 void TextNodeRepo::save(const Node &n) {
-  cout << "TextNodeRepo Saving ";
-  n.dump();
+  // cout << "TextNodeRepo Saving ";
+  // n.dump();
 
   stringstream ss;
 
@@ -127,8 +127,8 @@ void TextNodeRepo::save(const Node &n) {
   }
 
   if (contains(n)) {
-    cout << "TextNodeRepo Not saving. Already contains ";
-    n.dump();
+    // cout << "TextNodeRepo Not saving. Already contains ";
+    // n.dump();
     return;
   }
 

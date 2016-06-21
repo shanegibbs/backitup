@@ -13,7 +13,7 @@
 namespace backitup {
 
 LocalStorage::LocalStorage(const std::string& path) : _path(path) {
-  cout << "Setting up storage at " << path << endl;
+  cout << "Backing up to: " << path << endl;
 
   if (boost::filesystem::exists(path)) return;
 
@@ -42,7 +42,7 @@ void LocalStorage::send(const string& base_path, Node& n) {
     cout << "ERROR failed to open " << tmp_path << endl;
   }
 
-  string source = base_path + n.getFullPath();
+  string source = base_path + n.path() + "/" + n.getName();
 
   ifstream file(source, ios::in | ios::binary);
   if (!file.is_open()) {
@@ -69,7 +69,7 @@ void LocalStorage::send(const string& base_path, Node& n) {
     remove(tmp_path.c_str());
     return;
   }
-  cout << "LocalStorage storing: " << hash_str << endl;
+  // cout << "LocalStorage storing: " << hash_str << endl;
 
   if (rename(tmp_path.c_str(), final_name.c_str()) != 0) {
     cerr << "Failed to rename file " << tmp_path << " to " << final_name << ": "
