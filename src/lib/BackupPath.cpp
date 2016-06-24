@@ -5,10 +5,13 @@
  *      Author: sgibbs
  */
 
+#include <chrono>
+#include <condition_variable>
 #include <ctime>
 #include <dirent.h>
 #include <functional>
 #include <iostream>
+#include <mutex>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -142,7 +145,9 @@ void BackupPath::watch(function<void(const string &changed)> fn) {
   _watch_started = true;
   _on_watch_event = fn;
 
-  function<void(const string &changed)> fnn = fn;
+  mutex m;
+  condition_variable cv;
+  bool init_complete = false;
 
   std::thread t([&]() {
     CFStringRef mypath =
@@ -174,9 +179,22 @@ void BackupPath::watch(function<void(const string &changed)> fn) {
     FSEventStreamScheduleWithRunLoop(_stream, CFRunLoopGetCurrent(),
                                      kCFRunLoopDefaultMode);
     FSEventStreamStart(_stream);
+
+    {
+      unique_lock<mutex> lk(m);
+      init_complete = true;
+      cv.notify_one();
+    }
+
     CFRunLoopRun();
   });
   t.detach();
+
+  unique_lock<mutex> lk(m);
+  cv.wait_for(lk, 5s, [&] { return init_complete; });
+  if (!init_complete) {
+    throw "Timeout waiting for FSEvent stream to start";
+  }
 }
 
 void BackupPath::visitFilesRecursive(

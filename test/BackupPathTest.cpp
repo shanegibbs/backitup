@@ -27,9 +27,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(BackupPathTest);
 
 void BackupPathTest::setUp() { fs::remove_all("backuppath_test"); }
 
-void BackupPathTest::tearDown() {
-  // fs::remove_all("backuppath_test");
-}
+void BackupPathTest::tearDown() { fs::remove_all("backuppath_test"); }
 
 static void create_file(const char* filename, const char* content) {
   ofstream a(filename, ios::out | ios::trunc);
