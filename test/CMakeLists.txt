@@ -20,6 +20,7 @@ file(GLOB test_SRC
 
 add_executable(backitup_unittests main.cpp
   TextNodeRepoTest.cpp
+  BackupPathTest.cpp
   BackitupTest.cpp
 )
 

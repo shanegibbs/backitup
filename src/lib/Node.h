@@ -83,6 +83,7 @@ typedef std::shared_ptr<NodeList> NodeListRef;
 
 class NodeList {
  public:
+  NodeList(const std::string& p) { _path = p; }
   static NodeListRef New(const std::string& p) {
     return NodeListRef(new NodeList(p));
   }
@@ -95,7 +96,6 @@ class NodeList {
   long mtime() const { return _mtime; }
 
  private:
-  NodeList(const std::string& p) { _path = p; }
   std::string _path;
   long _mtime;
   std::vector<Node> _list;

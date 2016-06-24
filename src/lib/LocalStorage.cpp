@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <fstream>
 #include <iostream>
+#include <mutex>
 #include <sys/stat.h>
 
 #include <boost/filesystem/operations.hpp>
@@ -10,7 +11,11 @@
 
 #include "HashFuncs.h"
 
+using namespace std;
+
 namespace backitup {
+
+mutex store_mutex;
 
 LocalStorage::LocalStorage(const std::string& path) : _path(path) {
   cout << "Backing up to: " << path << endl;
@@ -27,33 +32,27 @@ void LocalStorage::send(const string& base_path, Node& n) {
   int bufLen = 4096;
   char buf[bufLen];
 
-  // read into buffer
-  // add to hash
-
-  // write out to storage
-
-  // n.sha256(sha256(base_path + n.getFullPath()));
-
   Hash hash;
+
+  lock_guard<mutex> guard(store_mutex);
 
   string tmp_path = _path + "/_";
   ofstream tmp_stream(tmp_path, ios::out | ios::binary | ios::trunc);
   if (!tmp_stream.is_open()) {
-    cout << "ERROR failed to open " << tmp_path << endl;
+    throw LocalStorageException("Failed to open tmp file: " + tmp_path);
   }
 
   string source = base_path + n.path() + "/" + n.getName();
 
   ifstream file(source, ios::in | ios::binary);
   if (!file.is_open()) {
-    cout << "ERROR LocalStorage failed to open " << source << endl;
-    return;
+    throw LocalStorageException("Failed to open: " + source);
   }
 
   while (file) {
     file.read(buf, bufLen);
     hash.update(buf, file.gcount());
-    tmp_stream.write(buf, file.gcount());
+    // tmp_stream.write(buf, file.gcount());
     if (file.eof()) break;
   }
 
@@ -72,8 +71,8 @@ void LocalStorage::send(const string& base_path, Node& n) {
   // cout << "LocalStorage storing: " << hash_str << endl;
 
   if (rename(tmp_path.c_str(), final_name.c_str()) != 0) {
-    cerr << "Failed to rename file " << tmp_path << " to " << final_name << ": "
-         << strerror(errno) << endl;
+    throw LocalStorageException("Failed to rename file " + tmp_path + " to " +
+                                final_name + ": " + strerror(errno));
   }
 }
 }

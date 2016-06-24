@@ -8,6 +8,13 @@
 
 namespace backitup {
 
+class LocalStorageException : public std::runtime_error {
+ public:
+  LocalStorageException(std::string msg)
+      : runtime_error(
+            string(string("LocalStorage ERROR: ").append(msg)).c_str()) {}
+};
+
 class LocalStorage : public Storage {
  public:
   static std::shared_ptr<LocalStorage> create(const std::string& path) {

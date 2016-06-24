@@ -10,6 +10,7 @@ void Backitup::run(BackupPath& b) {
   b.watchFiles([&](const string& path, NodeListRef nl) -> void {
     // cerr << "WATCH DISABLED" << endl;
     // return;
+    // cout << "\nTrigged on " << nl->path() << endl;
 
     bool changed = false;
 
@@ -27,6 +28,7 @@ void Backitup::run(BackupPath& b) {
         }
       }
       if (found == nullptr && !_index.contains(n)) {
+        if (n.size() > 10 * 1024) return;
         cout << "New ";
         n.dump();
         Node a = n;
@@ -63,25 +65,37 @@ void Backitup::run(BackupPath& b) {
 
   // full scan
 
+  cout << "Beginning full scan" << endl;
+
   unsigned int fileCount = 0;
+  unsigned long fileSize = 0;
   auto root = b.visitFiles([&](const string& path, shared_ptr<Node> f) -> void {
     if (f->getName() == "scratch.txt.db") return;
+    if (f->size() > 10 * 1024) return;
 
     fileCount++;
-    if (f->size() > 1024 * 1024) return;
+    fileSize += f->size();
+
     if (_index.contains(*f)) {
       return;
     }
 
-    cout << "Scan new ";
-    f->dump();
+    // cout << "Scan new ";
+    // f->dump();
+    // cerr << ".";
 
     // order is important here
     _store.send(path, *f);
     _index.save(*f);
+
+    // if (fileCount % 1000 == 1) {
+    cerr << "File count: " << fileCount << ", size=" << fileSize << endl;
+    // }
   });
 
   _index.flush();
+
+  cout << "Initial scan completed" << endl;
 
   sleep(100000);
 }
