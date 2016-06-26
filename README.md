@@ -1,6 +1,18 @@
+## Backitup
+
+Recursively scans and monitors a file path, backing up any changes. Current implementation only supports backing up to local disk.
+
+```
+§ ./bin/backitup --help
+Usage: backitup [OPTIONS] PATH:
+--help                      produce help message
+--index FILE (=backitup.db) File index database path.
+--storage PATH (=storage)   Path to file storage for backup destination.
+```
+
 ## TODO
 
-* Handle empty directories.
+* Handle deleted directories.
 * Handle permissions.
 
 ## Dependencies

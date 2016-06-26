@@ -62,6 +62,7 @@ TextNodeRepo::TextNodeRepo() {
 }
 
 void TextNodeRepo::flush() {
+  /*
   std::ofstream out("scratch.txt.db");
   for (auto &p : records) {
     for (auto &d : p.second) {
@@ -71,6 +72,7 @@ void TextNodeRepo::flush() {
     }
   }
   out.close();
+   */
 }
 
 bool TextNodeRepo::contains(const Node &n) {
@@ -147,6 +149,10 @@ void TextNodeRepo::save(const Node &n) {
   auto &names = records[path];
   auto &recs = names[n.getName()];
   recs.push_back(rec);
+
+  ofstream outfile;
+  outfile.open("scratch.txt.db", ios_base::app);
+  outfile << rec.to_line() << endl;
 }
 
 void TextNodeRepo::deleted(const Node &n, long mtime) {

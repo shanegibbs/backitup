@@ -85,8 +85,8 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
     }
     if (found == nullptr && !_index.contains(n)) {
       if (n.size() > 10 * 1024) continue;
-      cerr << "New ";
-      n.dump();
+      // cerr << "New ";
+      // n.dump();
       Node a = n;
 
       try {
@@ -118,7 +118,7 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
   }
 
   if (changed) {
-    cout << "\nTrigged on " << nl.path() << endl << endl;
+    // cout << "\nTrigged on " << nl.path() << endl << endl;
     _index.flush();
   }
 

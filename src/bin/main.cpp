@@ -26,9 +26,9 @@ int main(int argc, char** argv) {
   string index_path;
 
   // clang-format off
-  po::options_description desc("Allowed options");
+  po::options_description desc("Usage: backitup [OPTIONS] PATH");
   desc.add_options()
-  ("help", "produce help message")
+  ("help", "Produce this help message")
   ("index", po::value<string>(&index_path)
     ->default_value(string("backitup.db"))
     ->value_name(string("FILE")),

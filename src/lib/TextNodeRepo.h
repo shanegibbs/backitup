@@ -1,8 +1,8 @@
 #ifndef TEXT_NODE_REPO_H_
 #define TEXT_NODE_REPO_H_
 
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include "Index.h"
@@ -41,7 +41,9 @@ class TextNodeRepo : public Index {
   string dump() const;
 
  private:
-  std::map<std::string, std::map<std::string, std::vector<Record>>> records;
+  std::unordered_map<std::string,
+                     std::unordered_map<std::string, std::vector<Record>>>
+      records;
 };
 }
 
