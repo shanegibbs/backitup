@@ -10,12 +10,14 @@ Usage: backitup [OPTIONS] PATH:
 --storage PATH (=storage)   Path to file storage for backup destination.
 ```
 
-## TODO
+## Development
+
+### TODO
 
 * Handle deleted directories.
 * Handle permissions.
 
-## Dependencies
+### Dependencies
 
 ```
 sudo apt-get install -y \
@@ -27,19 +29,19 @@ sudo apt-get install -y \
   protobuf-compiler
 ```
 
-## Mac FsEvent Api
+### Mac FsEvent Api
 
 Can only tell you something updated in a directory. This will require the ability to compare whole directories.
 
 Perhaps this could be optimized by sorting by mtime?
 
-## Linux iNotify Api
+### Linux iNotify Api
 
 Is not recursive. Need to add a watch for all directories. Will tell you exactly what file changed though. Uses "watch descriptors" instead of file descriptors. There is a default limit of 8192 watch descriptors. Set in `/proc/sys/fs/inotify/max_user_watches`.
 
-## Data Model
+### Data Model
 
-### Record Database
+#### Record Database
 
 Tab delimited compressed text file. One record per row. Fields:
 
