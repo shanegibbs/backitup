@@ -42,4 +42,10 @@ const string Node::getFullPath() const {
   }
   return ss.str();
 }
+
+string NodeList::dump() const {
+  stringstream ss;
+  ss << _path << endl;
+  return ss.str();
+}
 }

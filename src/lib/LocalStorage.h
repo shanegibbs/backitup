@@ -12,7 +12,7 @@ class LocalStorageException : public std::runtime_error {
  public:
   LocalStorageException(std::string msg)
       : runtime_error(
-            string(string("LocalStorage ERROR: ").append(msg)).c_str()) {}
+            string(string("LocalStorageException: ").append(msg)).c_str()) {}
 };
 
 class LocalStorage : public Storage {

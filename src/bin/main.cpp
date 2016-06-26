@@ -51,11 +51,17 @@ int main(int argc, char** argv) {
   cmdline_options.add(desc).add(hidden);
 
   po::variables_map vm;
-  po::store(po::command_line_parser(argc, argv)
-                .options(cmdline_options)
-                .positional(pd)
-                .run(),
-            vm);
+  try {
+    po::store(po::command_line_parser(argc, argv)
+                  .options(cmdline_options)
+                  .positional(pd)
+                  .run(),
+              vm);
+  } catch (exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+    std::cerr << desc << std::endl;
+    return 1;
+  }
 
   if (vm.count("help")) {
     cout << desc << "\n";
@@ -70,7 +76,12 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  path = boost::filesystem::canonical(path).native();
+  try {
+    path = boost::filesystem::canonical(path).native();
+  } catch (exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+    return 1;
+  }
 
   if (!boost::filesystem::exists(storage_path)) {
     if (mkdir(storage_path.c_str(), 0755) == -1) {
@@ -98,7 +109,10 @@ int main(int argc, char** argv) {
   BackupPath fs(path, excludes);
 
   Backitup backitup(index, store);
+  backitup.init(fs);
   backitup.run(fs);
+
+  sleep(10000);
 
   return 0;
 }

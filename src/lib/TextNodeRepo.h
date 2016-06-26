@@ -38,6 +38,8 @@ class TextNodeRepo : public Index {
 
   enum ReturnCodes { FailedToSave };
 
+  string dump() const;
+
  private:
   std::map<std::string, std::map<std::string, std::vector<Record>>> records;
 };

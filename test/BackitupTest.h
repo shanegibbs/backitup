@@ -5,13 +5,13 @@
 
 class BackitupTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(BackitupTest);
-  CPPUNIT_TEST(testInsert);
+  CPPUNIT_TEST(testMain);
   CPPUNIT_TEST_SUITE_END();
 
  public:
   void setUp();
   void tearDown();
-  void testInsert();
+  void testMain();
 };
 
 #endif /* BACKITUPTEST_H_ */

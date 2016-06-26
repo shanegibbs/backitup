@@ -89,7 +89,43 @@ void BackupPath::visit(
       }
     }
   }
+
+  closedir(d);
+
   fn(path, nl);
+}
+
+NodeList BackupPath::list(const string &p) const {
+  NodeList nl(p);
+
+  DIR *d;
+  struct dirent *dir;
+  string full_path = path + "/" + p;
+
+  d = opendir(full_path.c_str());
+  if (!d) {
+    cerr << "WARN: Unable to read directory " << full_path << endl;
+    return nl;
+  }
+
+  while ((dir = readdir(d)) != NULL) {
+    if (dir->d_type == DT_REG) {
+      string filename = full_path + "/" + dir->d_name;
+      struct stat s;
+      if (stat(filename.c_str(), &s) == -1) {
+        cerr << "WARN: Unable to stat file: " << filename << endl;
+      } else {
+        long mtime = s.st_mtime;
+        long ctime = s.st_ctime;
+        if (ctime > mtime) mtime = ctime;
+        Node node(p, string(dir->d_name), mtime, s.st_size, string(""));
+        nl.add(node);
+      }
+    }
+  }
+
+  closedir(d);
+  return nl;
 }
 
 struct WatchContext {

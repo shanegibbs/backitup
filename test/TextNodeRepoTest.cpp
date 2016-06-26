@@ -16,7 +16,7 @@ void TextNodeRepoTest::setUp() { remove("scratch.txt.db"); }
 
 void TextNodeRepoTest::tearDown() {}
 
-void TextNodeRepoTest::testInsert() {
+void TextNodeRepoTest::testMain() {
   TextNodeRepo repo;
   auto stored = repo.latest(string("/"));
   CPPUNIT_ASSERT_EQUAL(0UL, stored.list().size());

@@ -43,6 +43,10 @@ class BackupPath {
 
   void _watch_callback(const string updated_path);
 
+  NodeList list(const string &path) const;
+
+  const string get_path() const { return path; }
+
  private:
   void visitFilesRecursive(
       const string &base, shared_ptr<Node> node,

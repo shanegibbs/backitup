@@ -182,4 +182,17 @@ NodeList TextNodeRepo::latest(const string &path) {
 
   return *list;
 }
+
+string TextNodeRepo::dump() const {
+  stringstream ss;
+  for (auto &p : records) {
+    for (auto &d : p.second) {
+      for (auto &r : d.second) {
+        ss << r.path() << " " << r.name() << " " << r.size() << " " << r.hash()
+           << endl;
+      }
+    }
+  }
+  return ss.str();
+}
 }

@@ -95,6 +95,8 @@ class NodeList {
   void mtime(long m) { _mtime = m; }
   long mtime() const { return _mtime; }
 
+  string dump() const;
+
  private:
   std::string _path;
   long _mtime;

@@ -14,15 +14,15 @@ class Record {
   Record() {}
   Record(const std::string &line);
   std::string to_line() const;
-  std::string &path() { return _path; }
+  std::string &path() const { return const_cast<std::string &>(_path); }
   void path(std::string p) { _path = p; }
-  std::string &name() { return _name; }
+  std::string &name() const { return const_cast<std::string &>(_name); }
   void name(std::string n) { _name = n; }
   long timestamp() const { return _timestamp; }
   void timestamp(long t) { _timestamp = t; }
   long size() const { return _size; }
   void size(long s) { _size = s; }
-  std::string &hash() { return _hash; }
+  std::string &hash() const { return const_cast<std::string &>(_hash); }
   void hash(std::string h) { _hash = h; }
   void dump() const;
 
