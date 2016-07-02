@@ -30,11 +30,6 @@ class BackupPath {
   BackupPath(const string path, vector<string> e);
   ~BackupPath();
 
-  shared_ptr<Node> visitFiles(
-      function<void(const string &path, shared_ptr<Node>)> fn) const;
-
-  void watchFiles(function<void(const string &path, NodeListRef)> fn) const;
-
   void watch(function<void(const string &changed)> fn);
 
   void visit(function<void(const string &path, const NodeList &)> fn) const;
@@ -48,9 +43,6 @@ class BackupPath {
   const string get_path() const { return path; }
 
  private:
-  void visitFilesRecursive(
-      const string &base, shared_ptr<Node> node,
-      function<void(const string &, shared_ptr<Node>)> fn) const;
 
   const string path;
   vector<string> excludes;

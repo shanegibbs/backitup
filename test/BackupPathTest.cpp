@@ -119,3 +119,24 @@ void BackupPathTest::testWatch() {
   CPPUNIT_ASSERT_EQUAL(string(""), last_failure_msg);
   CPPUNIT_ASSERT_EQUAL(2, count);
 }
+
+void BackupPathTest::testExcludes() {
+  fs::create_directory("backuppath_test");
+  fs::create_directory("backuppath_test/storage");
+  create_file("backuppath_test/index.db.txt", "abc\n");
+  create_file("backuppath_test/storage/somefile", "abc\n");
+
+  string ex_path = "backuppath_test/storage";
+  string ex_file = "backuppath_test/index.db.txt";
+
+  vector<string> excludes;
+  excludes.push_back(ex_path);
+  excludes.push_back(ex_file);
+  backitup::BackupPath fs("backuppath_test", excludes);
+
+  int count = 0;
+
+  fs.visit([&](const string& path, const NodeList& nl) -> void { count += 1; });
+
+  CPPUNIT_ASSERT_EQUAL(0, count);
+}

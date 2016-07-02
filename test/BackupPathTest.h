@@ -14,6 +14,7 @@ class BackupPathTest : public CPPUNIT_NS::TestFixture {
   void tearDown();
   void testVisit();
   void testWatch();
+  void testExcludes();
 };
 
 #endif /* BACKUPPATHTEST_H_ */
