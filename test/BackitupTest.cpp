@@ -64,6 +64,10 @@ void BackitupTest::testMain() {
   TextNodeRepo repo;
 
   Backitup backitup(repo, store);
+  backitup.sleep_on_empty(false);
+
+  // do initial scan and setup watches
+
   backitup.init(fs);
 
   auto nl = repo.latest(string("/"));
@@ -85,6 +89,8 @@ void BackitupTest::testMain() {
   )");
   CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
 
+  // make a change for the watcher to pick up
+
   create_file("backupitup_test/files/subdir/subdirC", "abc\n");
 
   int count = 0;
@@ -103,6 +109,7 @@ void BackitupTest::testMain() {
 
   unique_lock<mutex> lk(m);
   cv.wait_for(lk, 5s, [&] { return count >= 1; });
+  cerr << "TESTCOMPLETE" << endl;
 
   backitup.stop();
   cerr << "QUIT" << endl;

@@ -39,6 +39,11 @@ class Channel {
     return true;
   }
 
+  bool empty() {
+    std::unique_lock<std::mutex> lock(m);
+    return queue.empty();
+  }
+
  private:
   std::list<T> queue;
   std::mutex m;

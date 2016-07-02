@@ -50,6 +50,11 @@ void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
       if (was_change && fn != nullptr) {
         fn(changed);
       }
+
+      if (_chan.empty() && _sleep_on_empty) {
+        cerr << "Nothing to backup, sleeping for 5min.";
+        sleep(300);
+      }
     }
 
     {

@@ -20,6 +20,8 @@ class Backitup {
 
   void stop();
 
+  void sleep_on_empty(bool b) { _sleep_on_empty = b; }
+
  private:
   bool process_nl(const string& path, const NodeList& nl);
 
@@ -27,6 +29,8 @@ class Backitup {
   Index& _index;
   Storage& _store;
   Channel<string> _chan;
+
+  bool _sleep_on_empty = true;
 
   bool _running = true;
 

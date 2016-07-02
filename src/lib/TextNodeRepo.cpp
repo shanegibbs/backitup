@@ -190,14 +190,23 @@ NodeList TextNodeRepo::latest(const string &path) {
 }
 
 string TextNodeRepo::dump() const {
-  stringstream ss;
+  vector<string> strs;
   for (auto &p : records) {
     for (auto &d : p.second) {
       for (auto &r : d.second) {
-        ss << r.path() << " " << r.name() << " " << r.size() << " " << r.hash()
-           << endl;
+        stringstream line;
+        line << r.path() << " " << r.name() << " " << r.size() << " "
+             << r.hash();
+        strs.push_back(line.str());
       }
     }
+  }
+
+  sort(strs.begin(), strs.end());
+
+  stringstream ss;
+  for (auto &s : strs) {
+    ss << s << endl;
   }
   return ss.str();
 }
