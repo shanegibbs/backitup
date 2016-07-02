@@ -12,6 +12,7 @@
 
 #include <Backitup.h>
 #include <LocalStorage.h>
+#include <Log.h>
 #include <TextNodeRepo.h>
 
 using namespace backitup;
@@ -21,6 +22,8 @@ using namespace std::chrono_literals;
 namespace fs = boost::filesystem;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(BackitupTest);
+
+static Log LOG = Log("BackitupTest");
 
 string raw(const char* r) {
   stringstream in(r);
@@ -71,7 +74,7 @@ void BackitupTest::testMain() {
   backitup.init(fs);
 
   auto nl = repo.latest(string("/"));
-  cout << nl.dump() << endl;
+  debug << "nl.dump()\n" << nl.dump();
   CPPUNIT_ASSERT_EQUAL(string("/"), nl.path());
   CPPUNIT_ASSERT_EQUAL(1UL, nl.list().size());
   Node n = nl.list()[0];
@@ -99,7 +102,7 @@ void BackitupTest::testMain() {
   condition_variable cv;
 
   backitup.run(fs, [&](const string& path) -> void {
-    cerr << "GOOD " << path << endl;
+    info << "GOOD " << path;
     if (path == "subdir") {
       unique_lock<mutex> lk(m);
       count += 1;
@@ -109,8 +112,8 @@ void BackitupTest::testMain() {
 
   unique_lock<mutex> lk(m);
   cv.wait_for(lk, 5s, [&] { return count >= 1; });
-  cerr << "TESTCOMPLETE" << endl;
+  info << "TESTCOMPLETE";
 
   backitup.stop();
-  cerr << "QUIT" << endl;
+  info << "QUIT";
 }

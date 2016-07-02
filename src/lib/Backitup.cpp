@@ -1,8 +1,11 @@
 #include "Backitup.h"
 
 #include "Channel.h"
+#include "Log.h"
 
 namespace backitup {
+
+static Log LOG = Log("Backitup");
 
 Backitup::Backitup(Index& i, Storage& s) : _index(i), _store(s) {}
 
@@ -19,21 +22,22 @@ void Backitup::init(BackupPath& b) {
 
   Channel<string>& chan_ref = _chan;
   b.watch([&chan_ref](const string& changed) -> void {
-    cerr << "QUEUED " << changed << endl;
+    info << "Queued for processing " << changed;
     chan_ref.put(changed);
   });
 
   // run full scan
 
-  cout << "Beginning full scan" << endl;
+  info << "Watcher started. Beginning full scan";
 
   b.visit([&](const string& path, const NodeList& nl) -> void {
+    debug << "Scanning " << nl.path();
     process_nl(path, nl);
   });
 
   _index.flush();
 
-  cout << "Full scan completed" << endl;
+  info << "Full scan completed";
 }
 
 void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
@@ -44,7 +48,7 @@ void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
     while (_running && _chan.get(changed, true)) {
       if (!_running) break;
 
-      cerr << "PROCESSING " << changed << endl;
+      info << "Processing " << changed;
       auto nl = b.list(changed);
       bool was_change = process_nl(b.get_path(), nl);
       if (was_change && fn != nullptr) {
@@ -52,8 +56,8 @@ void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
       }
 
       if (_chan.empty() && _sleep_on_empty) {
-        cerr << "Nothing to backup, sleeping for 5min.";
-        sleep(300);
+        info << "Nothing more to backup, sleeping for 20 seconds.";
+        sleep(20);
       }
     }
 
@@ -97,7 +101,7 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
       try {
         _store.send(path, a);
       } catch (exception& e) {
-        cerr << "WARN: " << e.what() << endl;
+        warn << e.what();
         continue;
       }
 

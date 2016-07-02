@@ -5,15 +5,15 @@
  *      Author: sgibbs
  */
 
+#include <iostream>
+#include <sstream>
 #include <stdio.h>
 #include <string.h>
-#include <sstream>
 #include <string>
-#include <iostream>
 #include DB_CXX_HEADER
 
-#include "Log.h"
 #include "Database.h"
+#include "Log.h"
 
 namespace backitup {
 
@@ -51,8 +51,6 @@ void Database::openDb() {
 void Database::close() { db->close(0); }
 
 const string Database::getRecord(const string &keyBuffer) {
-  assert(db);
-
   Dbt key((void *)keyBuffer.data(), keyBuffer.length());
 
   int size = 1024;
@@ -75,8 +73,6 @@ const string Database::getRecord(const string &keyBuffer) {
 }
 
 const StringPair Database::getPrimaryRecord(const string &skeyBuffer) {
-  assert(db);
-
   Dbt skey((void *)skeyBuffer.data(), skeyBuffer.length());
 
   int size = 1024;
@@ -127,5 +123,4 @@ GeneralDatabaseException::GeneralDatabaseException(int err) : err(err) {
   os << "Failure " << db_strerror(err);
   errStr = os.str();
 }
-
 }

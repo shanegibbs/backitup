@@ -10,12 +10,15 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "Log.h"
 #include "Node.h"
 #include "Record.h"
 
 using namespace std;
 
 namespace backitup {
+
+static Log LOG = Log("TextNodeRepo");
 
 Record::Record(const string &line) {
   std::vector<std::string> strs;
@@ -34,14 +37,16 @@ std::string Record::to_line() const {
   return ss.str();
 }
 
-void Record::dump() const {
-  cout << "Record [path=" << _path << ", name=" << _name
-       << ",timestamp=" << _timestamp << ", size=" << _size
-       << ", hash=" << _hash << "]" << endl;
+string Record::dump() const {
+  stringstream ss;
+  ss << "Record [path=" << _path << ", name=" << _name
+     << ",timestamp=" << _timestamp << ", size=" << _size << ", hash=" << _hash
+     << "]";
+  return ss.str();
 }
 
 TextNodeRepo::TextNodeRepo() {
-  cout << "Loading scratch.txt.db" << endl;
+  info << "Loading scratch.txt.db";
   ifstream in("scratch.txt.db");
 
   unsigned int count = 0;
@@ -49,7 +54,7 @@ TextNodeRepo::TextNodeRepo() {
   string line;
   while (getline(in, line)) {
     Record rec(line);
-    // rec.dump();
+    // debug << "rec.dump() " << rec.dump();
 
     records[rec.path()][rec.name()].push_back(rec);
     // cout << count << " Loaded " << rec.name() << endl;
@@ -58,7 +63,7 @@ TextNodeRepo::TextNodeRepo() {
 
   in.close();
 
-  // cout << "Loaded " << count << " records" << endl;
+  info << "Loaded " << count << " records";
 }
 
 void TextNodeRepo::flush() {

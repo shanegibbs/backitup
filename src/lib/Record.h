@@ -24,7 +24,7 @@ class Record {
   void size(long s) { _size = s; }
   std::string &hash() const { return const_cast<std::string &>(_hash); }
   void hash(std::string h) { _hash = h; }
-  void dump() const;
+  std::string dump() const;
 
  private:
   std::string _path;

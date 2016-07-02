@@ -1,14 +1,18 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include <stdio.h>
-#include <stdarg.h>
 #include <exception>
+#include <iostream>
+#include <sstream>
+#include <stdarg.h>
 #include <stdexcept>
+#include <stdio.h>
 
 namespace backitup {
 
-enum LogLevel { TRACE, DEBUG, INFO, WARN, ERROR, UI, FATAL };
+enum LogLevel { DEBUG, INFO, WARN, ERROR, FATAL, NONE };
+
+extern LogLevel loglevel;
 
 class FatalLogEvent : public std::runtime_error {
  public:
@@ -17,38 +21,100 @@ class FatalLogEvent : public std::runtime_error {
 
 class Log {
  public:
-  Log(const char *name);
-  void trace(const char *format, ...) const;
-  void debug(const char *format, ...) const;
-  void info(const char *format, ...) const;
-  void warn(const char *format, ...) const;
-  void error(const char *format, ...) const;
-  void ui(const char *format, ...) const;
-  void fatal(const char *format, ...) const;
-
-  bool isLogLevel(LogLevel l) const { return l >= log_level; }
-
-  static void setLogLevel(LogLevel l) { log_level = l; }
+  Log(const std::string name) : _name(name) {}
+  const std::string &name() const { return _name; }
 
   static void setup();
 
   static FILE *out;
 
  private:
-  void log(LogLevel, const char *format, va_list *args) const;
-
-  const char *name;
-  static LogLevel log_level;
+  const std::string _name;
   static bool abort_on_fatal;
 };
 
-int assert_fail(const char* str, const char* func, const char* file, int line);
+class Logger {
+ public:
+  Logger(Log &parent, LogLevel level) : _parent(parent), _level(level) {
+    _buffer << _parent.name() << " ";
 
-// #define assert(msg) fprintf(stderr, "ERROR: %s (line %d)\n", msg, __LINE__);
-// abort();
-#define assert(x) \
-  ((void)(!(x) && assert_fail(#x, __PRETTY_FUNCTION__, __FILE__, __LINE__)))
+    std::string l;
+    switch (_level) {
+      case DEBUG:
+        l = "\x1b[36mDEBUG\x1b[0m";
+        break;
 
+      case INFO:
+        l = "\x1b[34mINFO\x1b[0m ";
+        break;
+
+      case WARN:
+        l = "\x1b[33mWARN\x1b[0m ";
+        break;
+
+      case ERROR:
+        l = "\x1b[31mERROR\x1b[0m";
+        break;
+
+      case FATAL:
+        l = "\x1b[31mFATAL\x1b[0m";
+        break;
+
+      case NONE:
+        break;
+    };
+
+    _buffer << l << " ";
+  }
+
+  ~Logger() {
+    _buffer << std::endl;
+    std::cerr << _buffer.str();
+  }
+
+  template <typename T>
+  Logger &operator<<(T const &val) {
+    _buffer << val;
+    return *this;
+  }
+
+ private:
+  Log &_parent;
+  LogLevel _level;
+  std::ostringstream _buffer;
+};
+
+#define debug           \
+  if (DEBUG < loglevel) \
+    ;                   \
+  else                  \
+  Logger(LOG, DEBUG)
+
+#define info           \
+  if (INFO < loglevel) \
+    ;                  \
+  else                 \
+  Logger(LOG, INFO)
+
+#define warn           \
+  if (WARN < loglevel) \
+    ;                  \
+  else                 \
+  Logger(LOG, WARN)
+
+#define error           \
+  if (ERROR < loglevel) \
+    ;                   \
+  else                  \
+  Logger(LOG, ERROR)
+
+#define fatal           \
+  if (FATAL < loglevel) \
+    ;                   \
+  else                  \
+  Logger(LOG, FATAL)
+
+int assert_fail(const char *str, const char *func, const char *file, int line);
 }
 
 #endif

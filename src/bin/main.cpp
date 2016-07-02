@@ -15,12 +15,16 @@
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
+#include <Log.h>
+
 using namespace std;
-using namespace backitup;
+// using namespace backitup;
 
 namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
+  backitup::loglevel = backitup::DEBUG;
+
   string path;
   string storage_path;
   string index_path;
@@ -100,15 +104,15 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  LocalStorage store(storage_path);
-  TextNodeRepo index;
+  backitup::LocalStorage store(storage_path);
+  backitup::TextNodeRepo index;
 
   vector<string> excludes;
   excludes.push_back(storage_path);
   excludes.push_back(index_path);
-  BackupPath fs(path, excludes);
+  backitup::BackupPath fs(path, excludes);
 
-  Backitup backitup(index, store);
+  backitup::Backitup backitup(index, store);
   backitup.init(fs);
   backitup.run(fs);
 
