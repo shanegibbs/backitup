@@ -1,7 +1,7 @@
 #ifndef CHANNEL_H_
 #define CHANNEL_H_
 
-#include <list>
+#include <set>
 #include <thread>
 
 namespace backitup {
@@ -25,7 +25,7 @@ class Channel {
   void put(const T &i) {
     std::unique_lock<std::mutex> lock(m);
     if (_closed) throw std::logic_error("put to closed channel");
-    queue.push_back(i);
+    queue.insert(i);
     cv.notify_one();
   }
 
@@ -34,8 +34,8 @@ class Channel {
     if (wait) cv.wait(lock, [&]() { return _closed || !queue.empty(); });
     if (_closed) return false;
     if (queue.empty()) return false;
-    out = queue.front();
-    queue.pop_front();
+    out = *queue.begin();
+    queue.erase(out);
     return true;
   }
 
@@ -45,7 +45,7 @@ class Channel {
   }
 
  private:
-  std::list<T> queue;
+  std::set<T> queue;
   std::mutex m;
   std::condition_variable cv;
   bool _closed;
