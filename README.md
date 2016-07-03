@@ -14,10 +14,10 @@ Usage: backitup [OPTIONS] PATH:
 
 ### Component Design
 
-*Index* responsible for storing all the file metadata for backups.
-*Storage* manages the blobs of file data.
-*BackupPath* crawls and watches the filesystem.
-*Engine* integrates the three above components together.
+* **Index** responsible for storing all the file metadata for backups.
+* **Storage** manages the blobs of file data.
+* **BackupPath** crawls and watches the filesystem.
+* **Engine** integrates the three above components together.
 
 #### Index
 
