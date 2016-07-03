@@ -6,6 +6,11 @@
 
 namespace backitup {
 
+/*
+ Standard buffered channel, except it only queues unique items.
+ put() returns true if the item was not already in the queue.
+*/
+
 template <class T>
 class Channel {
  public:
@@ -22,11 +27,12 @@ class Channel {
     return _closed;
   }
 
-  void put(const T &i) {
+  bool put(const T &i) {
     std::unique_lock<std::mutex> lock(m);
-    if (_closed) throw std::logic_error("put to closed channel");
-    queue.insert(i);
+    if (_closed) throw std::logic_error("Channel already closed");
+    auto result = queue.insert(i);
     cv.notify_one();
+    return result.second;
   }
 
   bool get(T &out, bool wait = true) {

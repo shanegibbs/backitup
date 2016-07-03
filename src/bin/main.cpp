@@ -23,7 +23,7 @@ using namespace std;
 namespace po = boost::program_options;
 
 int main(int argc, char** argv) {
-  backitup::loglevel = backitup::DEBUG;
+  backitup::loglevel = backitup::INFO;
 
   string path;
   string storage_path;

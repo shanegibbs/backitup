@@ -12,6 +12,36 @@ Usage: backitup [OPTIONS] PATH:
 
 ## Development
 
+### Component Design
+
+*Index* responsible for storing all the file metadata for backups.
+*Storage* manages the blobs of file data.
+*BackupPath* crawls and watches the filesystem.
+*Engine* integrates the three above components together.
+
+#### Index
+
+Currently only supports an in-memory model. Uses ~0.5 GB of memory and ~180MB of disk for ~1mil files.
+
+Planned implementations:
+* SQLite
+
+#### Storage
+
+Currently only supports backing up to another directory.
+
+Planned implementations:
+* S3
+* SCP/SSH
+
+#### BackupPath
+
+Currently supports FsEvent Api (MacOS).
+
+Planned implementations:
+* Linux
+* Windows
+
 ### TODO
 
 * Handle deleted directories.

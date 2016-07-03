@@ -22,8 +22,9 @@ void Backitup::init(BackupPath& b) {
 
   Channel<string>& chan_ref = _chan;
   b.watch([&chan_ref](const string& changed) -> void {
-    info << "Queued for processing " << changed;
-    chan_ref.put(changed);
+    if (chan_ref.put(changed)) {
+      info << "Queued for processing " << changed;
+    }
   });
 
   // run full scan
@@ -94,8 +95,7 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
     }
     if (found == nullptr && !_index.contains(n)) {
       if (n.size() > 10 * 1024) continue;
-      // cerr << "New ";
-      // n.dump();
+      info << "New " << n.path() << "/" << n.getName();
       Node a = n;
 
       try {
@@ -119,8 +119,7 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
       }
     }
     if (found == nullptr) {
-      cout << "Deleted ";
-      a.dump();
+      info << "Deleted " << a.path() << "/" << a.getName();
       _index.deleted(a, nl.mtime());
       changed = true;
     }

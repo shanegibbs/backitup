@@ -12,6 +12,9 @@ namespace backitup {
 
 enum LogLevel { DEBUG, INFO, WARN, ERROR, FATAL, NONE };
 
+// aparently stdout isn't thread safe. who knew!
+static std::mutex out_mutex;
+
 extern LogLevel loglevel;
 
 class FatalLogEvent : public std::runtime_error {
@@ -69,6 +72,7 @@ class Logger {
 
   ~Logger() {
     _buffer << std::endl;
+    std::lock_guard<std::mutex> lock(out_mutex);
     std::cerr << _buffer.str();
   }
 
