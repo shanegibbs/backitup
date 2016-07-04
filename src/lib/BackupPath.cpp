@@ -177,7 +177,7 @@ static void watch_callback(ConstFSEventStreamRef streamRef,
   }
 }
 
-void BackupPath::watch(function<void(const string &changed)> fn) {
+std::thread BackupPath::watch(function<void(const string &changed)> fn) {
   if (_watch_started) {
     throw "Watch alraedy running";
   }
@@ -223,12 +223,14 @@ void BackupPath::watch(function<void(const string &changed)> fn) {
 
     CFRunLoopRun();
   });
-  t.detach();
+  // t.detach();
 
   unique_lock<mutex> lk(m);
   cv.wait_for(lk, 5s, [&] { return init_complete; });
   if (!init_complete) {
     throw "Timeout waiting for FSEvent stream to start";
   }
+
+  return t;
 }
 }

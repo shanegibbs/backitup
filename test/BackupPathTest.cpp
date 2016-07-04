@@ -101,14 +101,15 @@ void BackupPathTest::testWatch() {
   condition_variable cv;
 
   backup_path.watch([&](const string& changed) -> void {
-    if (changed != "" && changed != "subdir") {
-      last_failure_msg = "Unexpected watch path: " + changed;
-    }
+               if (changed != "" && changed != "subdir") {
+                 last_failure_msg = "Unexpected watch path: " + changed;
+               }
 
-    unique_lock<mutex> lk(m);
-    count += 1;
-    cv.notify_one();
-  });
+               unique_lock<mutex> lk(m);
+               count += 1;
+               cv.notify_one();
+             })
+      .detach();
 
   create_file("backuppath_test/a", "abc\n");
   create_file("backuppath_test/subdir/c", "abc\n");

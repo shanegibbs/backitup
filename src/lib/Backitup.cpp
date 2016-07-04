@@ -28,10 +28,10 @@ void Backitup::init(BackupPath& b) {
 
   Channel<string>& chan_ref = _chan;
   b.watch([&chan_ref](const string& changed) -> void {
-    if (chan_ref.put(changed)) {
-      info << "Queued for processing " << changed;
-    }
-  });
+     if (chan_ref.put(changed)) {
+       info << "Queued for processing " << changed;
+     }
+   }).detach();
 
   // run full scan
 

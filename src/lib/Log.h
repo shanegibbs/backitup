@@ -88,35 +88,35 @@ class Logger {
   std::ostringstream _buffer;
 };
 
-#define debug           \
-  if (DEBUG < loglevel) \
-    ;                   \
-  else                  \
-  Logger(LOG, DEBUG)
+#define debug                               \
+  if (backitup::DEBUG < backitup::loglevel) \
+    ;                                       \
+  else                                      \
+  backitup::Logger(LOG, backitup::DEBUG)
 
-#define info           \
-  if (INFO < loglevel) \
-    ;                  \
-  else                 \
-  Logger(LOG, INFO)
+#define info                               \
+  if (backitup::INFO < backitup::loglevel) \
+    ;                                      \
+  else                                     \
+  backitup::Logger(LOG, backitup::INFO)
 
-#define warn           \
-  if (WARN < loglevel) \
-    ;                  \
-  else                 \
-  Logger(LOG, WARN)
+#define warn                               \
+  if (backitup::WARN < backitup::loglevel) \
+    ;                                      \
+  else                                     \
+  backitup::Logger(LOG, backitup::WARN)
 
-#define error           \
-  if (ERROR < loglevel) \
-    ;                   \
-  else                  \
-  Logger(LOG, ERROR)
+#define error                               \
+  if (backitup::ERROR < backitup::loglevel) \
+    ;                                       \
+  else                                      \
+  backitup::Logger(LOG, backitup::ERROR)
 
-#define fatal           \
-  if (FATAL < loglevel) \
-    ;                   \
-  else                  \
-  Logger(LOG, FATAL)
+#define fatal                               \
+  if (backitup::FATAL < backitup::loglevel) \
+    ;                                       \
+  else                                      \
+  backitup::Logger(LOG, backitup::FATAL)
 
 int assert_fail(const char *str, const char *func, const char *file, int line);
 }

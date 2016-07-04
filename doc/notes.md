@@ -17,6 +17,10 @@ sudo dtrace \
   -n 'syscall::pwrite:entry { printf("%d %d %d", pid, arg0, arg2); }'
 ```
 
+* Header `/usr/include/dtrace.h`
+* http://www.osdevcon.org/2008/files/osdevcon2008-petr.pdf
+* http://stackoverflow.com/questions/28011495/writing-a-dtrace-consumer-in-c
+
 ### Linux iNotify Api
 
 Is not recursive. Need to add a watch for all directories. Will tell you exactly what file changed though. Uses "watch descriptors" instead of file descriptors. There is a default limit of 8192 watch descriptors. Set in `/proc/sys/fs/inotify/max_user_watches`.

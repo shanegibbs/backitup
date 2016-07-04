@@ -11,6 +11,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <thread>
 #include <vector>
 
 /* MAC */
@@ -30,7 +31,7 @@ class BackupPath {
   BackupPath(const string path, vector<string> e);
   ~BackupPath();
 
-  void watch(function<void(const string &changed)> fn);
+  std::thread watch(function<void(const string &changed)> fn);
 
   void visit(function<void(const string &path, const NodeList &)> fn) const;
   void visit(const string &p,
@@ -43,7 +44,6 @@ class BackupPath {
   const string get_path() const { return path; }
 
  private:
-
   const string path;
   vector<string> excludes;
 
