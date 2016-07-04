@@ -50,6 +50,12 @@ class Channel {
     return queue.empty();
   }
 
+  void reset() {
+    std::unique_lock<std::mutex> lock(m);
+    queue.clear();
+    _closed = false;
+  }
+
  private:
   std::set<T> queue;
   std::mutex m;

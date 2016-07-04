@@ -45,6 +45,12 @@ static void create_file(const char* filename, const char* content) {
   a.close();
 }
 
+static void delete_file(const char* filename) {
+  if (std::remove(filename) != 0) {
+    throw "Failed to delete_file";
+  }
+}
+
 void BackitupTest::setUp() {
   fs::remove_all("scratch.txt.db");
   fs::remove_all("backupitup_test");
@@ -92,28 +98,67 @@ void BackitupTest::testMain() {
   )");
   CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
 
-  // make a change for the watcher to pick up
-
-  create_file("backupitup_test/files/subdir/subdirC", "abc\n");
-
-  int count = 0;
-
   mutex m;
   condition_variable cv;
 
-  backitup.run(fs, [&](const string& path) -> void {
-    info << "GOOD " << path;
-    if (path == "subdir") {
-      unique_lock<mutex> lk(m);
-      count += 1;
-      cv.notify_one();
-    }
-  });
+  {  // create a new file
 
-  unique_lock<mutex> lk(m);
-  cv.wait_for(lk, 5s, [&] { return count >= 1; });
-  info << "TESTCOMPLETE";
+    create_file("backupitup_test/files/subdir/subdirC", "abc\n");
 
-  backitup.stop();
-  info << "QUIT";
+    int count = 0;
+
+    backitup.run(fs, [&](const string& path) -> void {
+      info << "GOOD " << path;
+      if (path == "subdir") {
+        unique_lock<mutex> lk(m);
+        count += 1;
+        cv.notify_one();
+      }
+    });
+
+    unique_lock<mutex> lk(m);
+    cv.wait_for(lk, 5s, [&] { return count >= 1; });
+    CPPUNIT_ASSERT_EQUAL(1, count);
+
+    backitup.stop();
+
+    string expected = raw(R"(
+      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+    )");
+    CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
+  }
+
+  {  // delete file
+
+    delete_file("backupitup_test/files/subdir/subdirC");
+
+    int count = 0;
+
+    backitup.run(fs, [&](const string& path) -> void {
+      info << "GOOD " << path;
+      if (path == "subdir") {
+        unique_lock<mutex> lk(m);
+        count += 1;
+        cv.notify_one();
+      }
+    });
+
+    unique_lock<mutex> lk(m);
+    cv.wait_for(lk, 5s, [&] { return count >= 1; });
+    CPPUNIT_ASSERT_EQUAL(1, count);
+
+    backitup.stop();
+
+    string expected = raw(R"(
+      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirC 4 _
+      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+    )");
+    CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
+  }
 }

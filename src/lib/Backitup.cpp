@@ -15,6 +15,12 @@ void Backitup::stop() {
 
   unique_lock<mutex> lk(_stopped_m);
   stopped_cv.wait_for(lk, 5s, [&] { return _stopped; });
+  if (!_stopped) {
+    throw "Failed to stop channel";
+  }
+
+  _stopped = false;
+  _chan.reset();
 }
 
 void Backitup::init(BackupPath& b) {
