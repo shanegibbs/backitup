@@ -1,7 +1,7 @@
-### TODO
+### Future
 
-* Handle deleted directories.
 * Handle permissions.
+* Handle empty directories.
 
 ### Dependencies
 

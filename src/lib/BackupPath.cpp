@@ -25,6 +25,8 @@
 #include "Node.h"
 #include "Record.h"
 
+namespace fs = boost::filesystem;
+
 namespace backitup {
 
 static Log LOG = Log("BackupPath");
@@ -67,7 +69,9 @@ void BackupPath::visit(
 
   d = opendir(full_path.c_str());
   if (!d) {
-    warn << "Unable to read directory " << full_path;
+    if (fs::exists(full_path)) {
+      warn << "Unable to read directory " << full_path;
+    }
     return;
   }
 
@@ -107,7 +111,9 @@ NodeList BackupPath::list(const string &p) const {
 
   d = opendir(full_path.c_str());
   if (!d) {
-    warn << "Unable to read directory " << full_path;
+    if (fs::exists(full_path)) {
+      warn << "Unable to read directory " << full_path;
+    }
     return nl;
   }
 
