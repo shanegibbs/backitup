@@ -1,6 +1,6 @@
 ## Backitup
 
-Recursively scans and monitors a file path, backing up any changes. Current implementation only supports backing up to local disk.
+Recursively scans and monitors a file path, backing up any changes. Current implementation only supports backing up to a local path.
 
 ```
 § ./bin/backitup --help

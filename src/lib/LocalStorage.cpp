@@ -33,6 +33,9 @@ LocalStorage::LocalStorage(const std::string& path) : _path(path) {
 }
 
 void LocalStorage::send(const string& base_path, Node& n) {
+  n.sha256("disabled-for-now");
+  return;
+
   int bufLen = 4096;
   char buf[bufLen];
 
