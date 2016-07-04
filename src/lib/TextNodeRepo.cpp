@@ -194,11 +194,26 @@ NodeList TextNodeRepo::latest(const string &path) {
   return *list;
 }
 
-string TextNodeRepo::dump() const {
-  vector<string> strs;
+string TextNodeRepo::dump() {
+  // sorted list of paths
+  vector<string> paths;
   for (auto &p : records) {
-    for (auto &d : p.second) {
-      for (auto &r : d.second) {
+    paths.push_back(p.first);
+  }
+  sort(paths.begin(), paths.end());
+
+  vector<string> strs;
+  for (auto path : paths) {
+    auto p = records[path];
+    vector<string> names;
+    for (auto &name : p) {
+      names.push_back(name.first);
+    }
+    sort(names.begin(), names.end());
+
+    for (auto &name : names) {
+      auto &records = p[name];
+      for (auto &r : records) {
         stringstream line;
         line << r.path() << " " << r.name() << " " << r.size() << " "
              << r.hash();
@@ -206,8 +221,6 @@ string TextNodeRepo::dump() const {
       }
     }
   }
-
-  sort(strs.begin(), strs.end());
 
   stringstream ss;
   for (auto &s : strs) {

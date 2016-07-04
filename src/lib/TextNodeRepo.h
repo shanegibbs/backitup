@@ -38,7 +38,7 @@ class TextNodeRepo : public Index {
 
   enum ReturnCodes { FailedToSave };
 
-  string dump() const;
+  string dump();
 
  private:
   std::unordered_map<std::string,

@@ -108,7 +108,6 @@ void BackitupTest::testMain() {
     int count = 0;
 
     backitup.run(fs, [&](const string& path) -> void {
-      info << "GOOD " << path;
       if (path == "subdir") {
         unique_lock<mutex> lk(m);
         count += 1;
@@ -138,7 +137,6 @@ void BackitupTest::testMain() {
     int count = 0;
 
     backitup.run(fs, [&](const string& path) -> void {
-      info << "GOOD " << path;
       if (path == "subdir") {
         unique_lock<mutex> lk(m);
         count += 1;
@@ -156,8 +154,72 @@ void BackitupTest::testMain() {
       / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 _
       subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirC 4 _
+    )");
+    CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
+  }
+
+  {  // create a new file in new directory
+
+    fs::create_directory("backupitup_test/files/dirtest");
+    create_file("backupitup_test/files/dirtest/dirtestfile", "abc\n");
+
+    int count = 0;
+
+    backitup.run(fs, [&](const string& path) -> void {
+      if (path == "dirtest") {
+        unique_lock<mutex> lk(m);
+        count += 1;
+        cv.notify_one();
+      }
+    });
+
+    unique_lock<mutex> lk(m);
+    cv.wait_for(lk, 5s, [&] { return count >= 1; });
+    CPPUNIT_ASSERT_EQUAL(1, count);
+
+    backitup.stop();
+
+    string expected = raw(R"(
+      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirC 4 _
+    )");
+    CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
+  }
+
+  {  // delete directory
+
+    fs::remove_all("backupitup_test/files/dirtest");
+
+    int count = 0;
+
+    backitup.run(fs, [&](const string& path) -> void {
+      if (path == "dirtest") {
+        unique_lock<mutex> lk(m);
+        count += 1;
+        cv.notify_one();
+      }
+    });
+
+    unique_lock<mutex> lk(m);
+    cv.wait_for(lk, 5s, [&] { return count >= 1; });
+    CPPUNIT_ASSERT_EQUAL(1, count);
+
+    backitup.stop();
+
+    string expected = raw(R"(
+      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      dirtest dirtestfile 4 _
+      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      subdir subdirC 4 _
     )");
     CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
   }
