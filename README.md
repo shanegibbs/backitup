@@ -41,3 +41,12 @@ Currently supports FsEvent Api (MacOS).
 Planned implementations:
 * Linux
 * Windows
+
+## Ideas
+
+* Implement retention by deleting hashes
+* Ship hashes to remote agent
+** Agent can "glob" up hahses
+** Consolidate hashes to implement retention
+* Probe kernel for file writes
+** Only backup what is written to file, not entire file
