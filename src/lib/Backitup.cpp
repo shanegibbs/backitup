@@ -130,7 +130,7 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
       try {
         _store.send(path, a);
       } catch (exception& e) {
-        warn << e.what();
+        warn << "Failed to send to store: " << e.what();
         continue;
       }
 
@@ -155,7 +155,6 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
   }
 
   if (changed) {
-    // cout << "\nTrigged on " << nl.path() << endl << endl;
     _index.flush();
   }
 

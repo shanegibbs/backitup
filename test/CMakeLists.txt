@@ -28,6 +28,7 @@ target_link_libraries (backitup_unittests
   ${Boost_FILESYSTEM_LIBRARY}
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
+  boost_iostreams
   cppunit
   backitup
   crypto
