@@ -1,6 +1,7 @@
 #ifndef LOG_H
 #define LOG_H
 
+#include <ctime>
 #include <exception>
 #include <iostream>
 #include <sstream>
@@ -39,6 +40,12 @@ class Log {
 class Logger {
  public:
   Logger(Log &parent, LogLevel level) : _parent(parent), _level(level) {
+    std::time_t t = std::time(nullptr);
+    char mbstr[100];
+    if (std::strftime(mbstr, sizeof(mbstr), "%F %T", std::localtime(&t))) {
+      _buffer << mbstr << ' ';
+    }
+
     _buffer << _parent.name() << " ";
 
     std::string l;

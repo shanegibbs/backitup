@@ -5,6 +5,7 @@
  *      Author: sgibbs
  */
 
+#include <regex>
 #include <sys/stat.h>
 #include <vector>
 
@@ -22,12 +23,48 @@ using namespace std;
 
 namespace po = boost::program_options;
 
+static backitup::Log LOG = backitup::Log("main");
+
+unsigned long parse_max_file_size_bytes(string max_file_size_str) {
+  set<string> filesize_suffixes;
+  filesize_suffixes.insert("KB");
+  filesize_suffixes.insert("MB");
+  filesize_suffixes.insert("GB");
+  filesize_suffixes.insert("B");
+
+  regex e("(\\d+)([KMG]?B)");
+
+  if (!regex_match(max_file_size_str, e)) {
+    throw string("Does not match regex: \\d+[KMG]?B");
+  }
+
+  smatch sm;
+  regex_match(max_file_size_str, sm, e);
+
+  string val = sm[1];
+  string suffix = sm[2];
+
+  if (suffix == "B") {
+    return stoi(val);
+  } else if (suffix == "KB") {
+    return stoi(val) * 1024;
+  } else if (suffix == "MB") {
+    return stoi(val) * 1024 * 1024;
+  } else if (suffix == "GB") {
+    return stoi(val) * 1024 * 1024 * 1024;
+  }
+
+  throw string("Unable to determin suffix");
+}
+
 int main(int argc, char** argv) {
   backitup::loglevel = backitup::INFO;
 
   string path;
   string storage_path;
   string index_path;
+  string backup_interval_str;
+  string max_file_size_str;
 
   // clang-format off
   po::options_description desc("Usage: backitup [OPTIONS] PATH");
@@ -37,6 +74,14 @@ int main(int argc, char** argv) {
     ->default_value(string("backitup.db"))
     ->value_name(string("FILE")),
     "File index database path.")
+  ("interval", po::value<string>(&backup_interval_str)
+   ->default_value(string("15m"))
+   ->value_name(string("TIME")),
+   "Time between backups.")
+  ("max-file-size", po::value<string>(&max_file_size_str)
+   ->default_value(string("10KB"))
+   ->value_name(string("BYTES")),
+   "Maximum file size to backup. 0 for no limit.")
   ("storage", po::value<string>(&storage_path)
     ->default_value(string("storage"))
     ->value_name(string("PATH"))
@@ -104,6 +149,42 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  unsigned long max_file_size_bytes = 0;
+  try {
+    max_file_size_bytes = parse_max_file_size_bytes(max_file_size_str);
+    info << "Max size file for backup is " << max_file_size_bytes << " bytes";
+  } catch (string& e) {
+    fatal << "Failed to parse max-file-size: " << e;
+    return 1;
+  }
+
+  set<char> interval_types;
+  interval_types.insert('s');
+  interval_types.insert('m');
+  interval_types.insert('h');
+
+  char interval_kind = backup_interval_str.back();
+  if (interval_types.find(interval_kind) == interval_types.end()) {
+    fatal << "Period suffix for --interval: " << interval_kind;
+    return 1;
+  }
+
+  string interval_count_str =
+      backup_interval_str.substr(0, backup_interval_str.size() - 1);
+  int interval_secs = stoi(interval_count_str);
+
+  switch (interval_kind) {
+    case 'm':
+      interval_secs = interval_secs * 60;
+      break;
+    case 'h':
+      interval_secs *= 60 * 60;
+      break;
+  }
+
+  pair<string, int> interval =
+      pair<string, int>(backup_interval_str, interval_secs);
+
   backitup::LocalStorage store(storage_path);
   backitup::TextNodeRepo index;
 
@@ -112,9 +193,11 @@ int main(int argc, char** argv) {
   excludes.push_back(index_path);
   backitup::BackupPath fs(path, excludes);
 
-  backitup::Backitup backitup(index, store);
-  backitup.init(fs);
-  backitup.run(fs);
+  backitup::Backitup bu(index, store);
+  bu.interval(interval);
+  bu.max_file_size_bytes(max_file_size_bytes);
+  bu.init(fs);
+  bu.run(fs);
 
   sleep(10000);
 

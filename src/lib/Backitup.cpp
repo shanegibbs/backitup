@@ -1,3 +1,5 @@
+#include <ctime>
+
 #include "Backitup.h"
 
 #include "Channel.h"
@@ -50,21 +52,39 @@ void Backitup::init(BackupPath& b) {
 void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
   _running = true;
   _stopped = false;
+
   std::thread t([&]() {
     string changed;
-    while (_running && _chan.get(changed, true)) {
+
+    info << "Interval seconds " << _interval.second;
+
+    while (_running) {
       if (!_running) break;
+
+      // only attempt sleep if have nothing to process
+      while (_chan.empty() && _sleep_on_empty) {
+        int next_backup =
+            ((time(nullptr) / _interval.second) + 1) * _interval.second;
+        int sleep_needed = next_backup - time(nullptr);
+
+        if (sleep_needed > 0) {
+          info << "Nothing to backup, sleeping for " << sleep_needed
+               << " seconds";
+
+          // sleep only guarantees a minimum of seconds.
+          while (time(nullptr) < next_backup) {
+            sleep(1);
+          }
+        }
+      }
+
+      _chan.get(changed, true);
 
       info << "Processing " << changed;
       auto nl = b.list(changed);
       bool was_change = process_nl(b.get_path(), nl);
       if (was_change && fn != nullptr) {
         fn(changed);
-      }
-
-      if (_chan.empty() && _sleep_on_empty) {
-        info << "Nothing more to backup, sleeping for 20 seconds.";
-        sleep(20);
       }
     }
 
@@ -100,7 +120,10 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
       }
     }
     if (found == nullptr && !_index.contains(n)) {
-      if (n.size() > 10 * 1024) continue;
+      if (n.size() > _max_file_size_bytes) {
+        warn << "Skipping large file " << n.getName();
+        continue;
+      }
       info << "New " << n.path() << "/" << n.getName();
       Node a = n;
 

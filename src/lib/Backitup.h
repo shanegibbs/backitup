@@ -22,6 +22,10 @@ class Backitup {
 
   void sleep_on_empty(bool b) { _sleep_on_empty = b; }
 
+  void interval(pair<string, int> i) { _interval = i; }
+
+  void max_file_size_bytes(unsigned long l) { _max_file_size_bytes = l; }
+
  private:
   bool process_nl(const string& path, const NodeList& nl);
 
@@ -31,6 +35,10 @@ class Backitup {
   Channel<string> _chan;
 
   bool _sleep_on_empty = true;
+
+  pair<string, int> _interval;
+
+  unsigned long _max_file_size_bytes;
 
   bool _running = true;
 
