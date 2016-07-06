@@ -168,7 +168,11 @@ vector<string> Backitup::list_path(string path) {
   vector<string> out;
   unsigned long total_bytes = 0;
 
-  for (auto& n : nl.list()) {
+  vector<Node> vec = nl.list();
+
+  sort(vec.begin(), vec.end(), less<Node>());
+
+  for (auto& n : vec) {
     stringstream ss;
 
     time_t mtime_time_t = n.mtime();

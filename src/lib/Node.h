@@ -8,6 +8,8 @@
 #ifndef NODE_H_
 #define NODE_H_
 
+#include <algorithm>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -62,6 +64,9 @@ class Node {
     return shared_ptr<Node>(new Node(0, "", shared_ptr<Node>()));
   }
 
+  bool operator>(const Node& n) const { return (getName() > n.getName()); }
+  bool operator<(const Node& n) const { return (getName() < n.getName()); }
+
   void dump() const {
     cout << "Node [path=" << _path << ", name=" << name << ", mtime=" << _mtime
          << ", size=" << _size << ", sha256=" << _sha256 << "]" << endl;
@@ -70,7 +75,7 @@ class Node {
  private:
   unsigned int id;
   string _path;
-  const string name;
+  string name;
   long _size;
   long _mtime;
   string _sha256;
