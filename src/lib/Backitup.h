@@ -2,6 +2,7 @@
 #define BACKITUPX_H_
 
 #include <string>
+#include <thread>
 
 #include "BackupPath.h"
 #include "Channel.h"
@@ -16,7 +17,8 @@ class Backitup {
 
   void init(BackupPath& b);
 
-  void run(BackupPath& b, function<void(const string& path)> fn = nullptr);
+  std::thread run(BackupPath& b,
+                  function<void(const string& path)> fn = nullptr);
 
   void stop();
 
@@ -25,6 +27,8 @@ class Backitup {
   void interval(pair<string, int> i) { _interval = i; }
 
   void max_file_size_bytes(unsigned long l) { _max_file_size_bytes = l; }
+
+  vector<string> list_path(string path);
 
  private:
   bool process_nl(const string& path, const NodeList& nl);

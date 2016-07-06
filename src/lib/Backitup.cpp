@@ -1,4 +1,5 @@
 #include <ctime>
+#include <iomanip>
 
 #include "Backitup.h"
 
@@ -31,7 +32,7 @@ void Backitup::init(BackupPath& b) {
   Channel<string>& chan_ref = _chan;
   b.watch([&chan_ref](const string& changed) -> void {
      if (chan_ref.put(changed)) {
-       info << "Queued for processing " << changed;
+       debug << "Queued for processing " << changed;
      }
    }).detach();
 
@@ -49,7 +50,7 @@ void Backitup::init(BackupPath& b) {
   info << "Full scan completed";
 }
 
-void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
+thread Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
   _running = true;
   _stopped = false;
 
@@ -80,7 +81,7 @@ void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
 
       _chan.get(changed, true);
 
-      info << "Processing " << changed;
+      debug << "Processing " << changed;
       auto nl = b.list(changed);
       bool was_change = process_nl(b.get_path(), nl);
       if (was_change && fn != nullptr) {
@@ -95,7 +96,7 @@ void Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
     }
 
   });
-  t.detach();
+  return t;
 }
 
 bool Backitup::process_nl(const string& path, const NodeList& nl) {
@@ -159,5 +160,37 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
   }
 
   return changed;
+}
+
+vector<string> Backitup::list_path(string path) {
+  auto nl = _index.latest(path);
+
+  vector<string> out;
+  unsigned long total_bytes = 0;
+
+  for (auto& n : nl.list()) {
+    stringstream ss;
+
+    time_t mtime_time_t = n.mtime();
+
+    char mbstr[100];
+    if (std::strftime(mbstr, sizeof(mbstr), "%b %e %R",
+                      std::localtime(&mtime_time_t))) {
+    }
+
+    ss << setfill(' ') << setw(10) << n.size() << " " << mbstr << " "
+       << n.getName();
+    out.push_back(ss.str());
+
+    total_bytes += n.size();
+  }
+
+  {
+    stringstream header;
+    header << "total " << (total_bytes / 1024 / 1024) << " MB";
+    out.insert(out.begin(), header.str());
+  }
+
+  return out;
 }
 }

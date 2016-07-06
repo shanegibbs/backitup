@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
    ->value_name(string("TIME")),
    "Time between backups.")
   ("max-file-size", po::value<string>(&max_file_size_str)
-   ->default_value(string("10KB"))
+   ->default_value(string("10MB"))
    ->value_name(string("BYTES")),
    "Maximum file size to backup. 0 for no limit.")
   ("storage", po::value<string>(&storage_path)
@@ -194,12 +194,12 @@ int main(int argc, char** argv) {
   backitup::BackupPath fs(path, excludes);
 
   backitup::Backitup bu(index, store);
+
   bu.interval(interval);
   bu.max_file_size_bytes(max_file_size_bytes);
   bu.init(fs);
-  bu.run(fs);
+  bu.run(fs).join();
 
-  sleep(10000);
-
+  warn << "ending";
   return 0;
 }

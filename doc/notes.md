@@ -20,6 +20,17 @@ sudo dtrace \
 * Header `/usr/include/dtrace.h`
 * http://www.osdevcon.org/2008/files/osdevcon2008-petr.pdf
 * http://stackoverflow.com/questions/28011495/writing-a-dtrace-consumer-in-c
+* http://unix.stackexchange.com/questions/275175/error-on-enabled-probe-syscallopen-nocancelentry-invalid-user-access-in-ac
+
+Procs can block dtrace. Access errors can be related to El Capitan and its System Integrity Protection (csrutil status).
+
+The following code would disable dtrace access.
+
+```
+ptrace(PT_DENY_ATTACH, 0, 0, 0);
+```
+
+Which was more than likely implemented to protect iTunes DRM.
 
 ### Linux iNotify Api
 

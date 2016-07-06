@@ -25,7 +25,7 @@ static Log LOG = Log("LocalStorage");
 mutex store_mutex;
 
 LocalStorage::LocalStorage(const std::string& path) : _path(path) {
-  info << "Backing up to " << path;
+  info << "Local storage path: " << path;
 
   if (boost::filesystem::exists(path)) return;
 
@@ -109,7 +109,7 @@ void LocalStorage::send(const string& base_path, Node& n) {
     return;
   }
 
-  info << "Storing: " << hash_str;
+  debug << "Storing: " << hash_str;
 
   string src_path;
   string dst_path;

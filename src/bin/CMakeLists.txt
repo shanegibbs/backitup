@@ -14,5 +14,6 @@ link_libraries(ssl.a crypto z.a)
 
 add_executable(backitup-bin main.cpp)
 set_target_properties(backitup-bin PROPERTIES OUTPUT_NAME backitup)
+add_executable(restoreitup restoreitup.cpp)
 
 add_executable(backuppath backuppath.cpp)
