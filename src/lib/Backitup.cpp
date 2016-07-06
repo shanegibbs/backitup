@@ -178,7 +178,7 @@ vector<string> Backitup::list_path(string path) {
     time_t mtime_time_t = n.mtime();
 
     char mbstr[100];
-    if (std::strftime(mbstr, sizeof(mbstr), "%b %e %R",
+    if (std::strftime(mbstr, sizeof(mbstr), "%b %e %R %Y",
                       std::localtime(&mtime_time_t))) {
     }
 
