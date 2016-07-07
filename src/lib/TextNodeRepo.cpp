@@ -40,7 +40,7 @@ std::string Record::to_line() const {
 
 string Record::dump() const {
   stringstream ss;
-  ss << "Record [path=" << _path << ", name=" << _name
+  ss << "Record [type=" << _type << ", path=" << _path << ", name=" << _name
      << ",timestamp=" << _timestamp << ", size=" << _size << ", hash=" << _hash
      << "]";
   return ss.str();
@@ -192,6 +192,7 @@ NodeList TextNodeRepo::latest(const string &path) {
     n.mtime(latest->timestamp());
     n.size(latest->size());
     n.sha256(latest->hash());
+    n.is_dir(latest->type() == 'D');
     // n.dump();
     list->add(n);
   }

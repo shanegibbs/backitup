@@ -52,4 +52,12 @@ void TextNodeRepoTest::testMain() {
 
   repo.deleted(Node("/subdir", "a", 0, 0, ""), 1);
   CPPUNIT_ASSERT_EQUAL(0UL, repo.latest(string("/subdir")).list().size());
+
+  CPPUNIT_ASSERT_EQUAL(0UL, repo.latest(string("")).list().size());
+
+  repo.save(Node("", "subdir", true));
+  stored = repo.latest(string(""));
+  CPPUNIT_ASSERT_EQUAL(1UL, stored.list().size());
+  Node n = stored.list().front();
+  CPPUNIT_ASSERT_EQUAL(true, n.is_dir());
 }

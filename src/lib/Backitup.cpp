@@ -185,8 +185,13 @@ vector<string> Backitup::list_path(string path) {
                       std::localtime(&mtime_time_t))) {
     }
 
-    ss << setfill(' ') << setw(10) << n.size() << " " << mbstr << " "
-       << n.name();
+    if (n.is_dir()) {
+      ss << setfill(' ') << setw(10) << "";
+    } else {
+      ss << setfill(' ') << setw(10) << n.size();
+    }
+
+    ss << " " << mbstr << " " << n.name();
     out.push_back(ss.str());
 
     total_bytes += n.size();

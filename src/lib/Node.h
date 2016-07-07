@@ -42,6 +42,8 @@ class Node {
 
   bool is_dir() const { return _is_dir; }
 
+  void is_dir(bool d) { _is_dir = d; }
+
   const string& path() const { return _path; }
 
   void path(const string& p) { _path = p; }
