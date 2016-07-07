@@ -80,9 +80,9 @@ void BackitupTest::testMain() {
   // auto d = ShowDebug();
   backitup.init(fs);
 
-  auto nl = repo.latest(string("/"));
+  auto nl = repo.latest(string(""));
   debug << "nl.dump()\n" << nl.dump();
-  CPPUNIT_ASSERT_EQUAL(string("/"), nl.path());
+  CPPUNIT_ASSERT_EQUAL(string(""), nl.path());
   CPPUNIT_ASSERT_EQUAL(2UL, nl.list().size());
   Node n = nl.list()[1];
   CPPUNIT_ASSERT_EQUAL(string("initial"), n.name());
@@ -93,10 +93,10 @@ void BackitupTest::testMain() {
       n.sha256());
 
   string expected = raw(R"(
-    / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-    / subdir 0 
-    subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-    subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+    . initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+    . subdir 0 x
+    .subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+    .subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
   )");
   CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
 
@@ -125,11 +125,11 @@ void BackitupTest::testMain() {
     t.join();
 
     string expected = raw(R"(
-      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      / subdir 0 
-      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      . initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      . subdir 0 x
+      .subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
     )");
     CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
   }
@@ -156,12 +156,12 @@ void BackitupTest::testMain() {
     t.join();
 
     string expected = raw(R"(
-      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      / subdir 0 
-      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 _
+      . initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      . subdir 0 x
+      .subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirC 4 _
     )");
     CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
   }
@@ -189,14 +189,14 @@ void BackitupTest::testMain() {
     t.join();
 
     string expected = raw(R"(
-      / dirtest 0 
-      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      / subdir 0 
-      dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 _
+      . dirtest 0 x
+      . initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      . subdir 0 x
+      .dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirC 4 _
     )");
     CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
   }
@@ -223,17 +223,18 @@ void BackitupTest::testMain() {
     t.join();
 
     string expected = raw(R"(
-      / dirtest 0 
-      / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      / subdir 0 
-      dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      dirtest dirtestfile 4 _
-      subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
-      subdir subdirC 4 _
+      . dirtest 0 x
+      . dirtest 0 _
+      . initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      . subdir 0 x
+      .dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .dirtest dirtestfile 4 _
+      .subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      .subdir subdirC 4 _
     )");
-    CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
+    CPPUNIT_ASSERT_EQUAL("\n" + expected, "\n" + repo.dump());
   }
 
   fs.stop();

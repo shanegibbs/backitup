@@ -78,60 +78,6 @@ void BackupPath::visit(
   }
 }
 
-void BackupPath::visit(
-    const string &p,
-    function<void(const string &path, const NodeList &)> fn) const {
-  DIR *d;
-  struct dirent *dir;
-  string full_path = path + "/" + p;
-
-  NodeList nl(p);
-
-  // stop if we hit an excludes
-  for (auto &e : excludes) {
-    if (full_path == e) {
-      info << "Skipping " << full_path;
-      return;
-    }
-  }
-
-  d = opendir(full_path.c_str());
-  if (!d) {
-    if (fs::exists(full_path)) {
-      warn << "Unable to read directory " << full_path;
-    }
-    return;
-  }
-
-  while ((dir = readdir(d)) != NULL) {
-    if (strcmp(dir->d_name, ".") == 0) continue;
-    if (strcmp(dir->d_name, "..") == 0) continue;
-
-    if (dir->d_type == DT_DIR) {
-      string next_p = (!p.empty() ? p + "/" : "") + dir->d_name;
-      visit(next_p, fn);
-      Node d_node(p, dir->d_name, true);
-      nl.add(d_node);
-    } else if (dir->d_type == DT_REG) {
-      string filename = full_path + "/" + dir->d_name;
-      struct stat s;
-      if (stat(filename.c_str(), &s) == -1) {
-        warn << "Unable to stat file: " << filename;
-      } else {
-        long mtime = s.st_mtime;
-        long ctime = s.st_ctime;
-        if (ctime > mtime) mtime = ctime;
-        Node node(p, string(dir->d_name), mtime, s.st_size, string(""));
-        nl.add(node);
-      }
-    }
-  }
-
-  closedir(d);
-
-  fn(path, nl);
-}
-
 NodeList BackupPath::list(const string &p) const {
   NodeList nl(p);
 

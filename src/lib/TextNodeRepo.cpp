@@ -142,9 +142,6 @@ void TextNodeRepo::save(const Node &n) {
 
   Record rec;
   string path = n.path();
-  if (path.empty()) {
-    path = "/";
-  }
 
   if (n.is_dir()) {
     rec.type('D');
@@ -223,8 +220,8 @@ string TextNodeRepo::dump() {
       auto &records = p[name];
       for (auto &r : records) {
         stringstream line;
-        line << r.path() << " " << r.name() << " " << r.size() << " "
-             << r.hash();
+        line << "." << r.path() << " " << r.name() << " " << r.size() << " "
+             << (r.hash().empty() ? "x" : r.hash());
         strs.push_back(line.str());
       }
     }

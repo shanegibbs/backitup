@@ -34,8 +34,6 @@ class BackupPath {
   void watch(function<void(const string &changed)> fn);
 
   void visit(function<void(const string &path, const NodeList &)> fn) const;
-  void visit(const string &p,
-             function<void(const string &path, const NodeList &)> fn) const;
 
   void _watch_callback(const string updated_path);
 
