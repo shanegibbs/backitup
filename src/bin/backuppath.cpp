@@ -83,8 +83,7 @@ int main(int argc, char** argv) {
   vector<string> excludes;
   backitup::BackupPath backuppath(path, excludes);
 
-  backuppath.watch([](const string& changed) -> void { info << changed; })
-      .join();
+  backuppath.watch([](const string& changed) -> void { info << changed; });
 
   return 0;
 }

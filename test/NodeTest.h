@@ -6,7 +6,6 @@
 class NodeTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(NodeTest);
   CPPUNIT_TEST(testGetFullPath);
-  CPPUNIT_TEST(testGetFullPathNested);
   CPPUNIT_TEST_SUITE_END();
 
  protected:
@@ -17,7 +16,6 @@ class NodeTest : public CPPUNIT_NS::TestFixture {
   void setUp();
   void tearDown();
   void testGetFullPath();
-  void testGetFullPathNested();
 };
 
 #endif /* FILETREENODETEST_H_ */

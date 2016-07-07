@@ -1,7 +1,7 @@
 #include <string.h>
 
-#include <cppunit/config/SourcePrefix.h>
 #include <Node.h>
+#include <cppunit/config/SourcePrefix.h>
 
 #include "NodeTest.h"
 
@@ -15,21 +15,16 @@ void NodeTest::setUp() {}
 void NodeTest::tearDown() {}
 
 void NodeTest::testGetFullPath() {
-  auto root = Node::createRoot();
-  CPPUNIT_ASSERT(root);
-  auto file = Node::create(0, "first", root);
-  CPPUNIT_ASSERT(file);
-
-  CPPUNIT_ASSERT_EQUAL(string("/first"), *file->getFullPath());
-}
-
-void NodeTest::testGetFullPathNested() {
-  auto root = Node::createRoot();
-  CPPUNIT_ASSERT(root);
-  auto first = Node::create(0, "first", root);
-  CPPUNIT_ASSERT(first);
-  auto second = Node::create(0, "second", first);
-  CPPUNIT_ASSERT(second);
-
-  CPPUNIT_ASSERT_EQUAL(string("/first/second"), *second->getFullPath());
+  {
+    Node n("", "file1", 0, 0, "");
+    CPPUNIT_ASSERT_EQUAL(string("file1"), n.full_path());
+  }
+  {
+    Node n("subdir", "file1", 0, 0, "");
+    CPPUNIT_ASSERT_EQUAL(string("subdir/file1"), n.full_path());
+  }
+  {
+    Node n("subdir/nother", "file1", 0, 0, "");
+    CPPUNIT_ASSERT_EQUAL(string("subdir/nother/file1"), n.full_path());
+  }
 }

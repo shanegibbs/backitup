@@ -22,6 +22,7 @@ add_executable(backitup_unittests main.cpp
   TextNodeRepoTest.cpp
   BackupPathTest.cpp
   BackitupTest.cpp
+  NodeTest.cpp
 )
 
 target_link_libraries (backitup_unittests
