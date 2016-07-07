@@ -126,7 +126,7 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
         continue;
       }
 
-      info << "New " << n.full_path();
+      info << "\x1b[32m+\x1b[0m " << n.full_path() << (n.is_dir() ? "/" : "");
       Node a = n;  // copy to non-const
 
       if (!a.is_dir()) {
@@ -152,7 +152,8 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
       }
     }
     if (found == nullptr) {
-      info << "Deleted " << a.path() << "/" << a.name();
+      info << "\x1b[31m-\x1b[0m " << a.path() << "/" << a.name()
+           << (a.is_dir() ? "/" : "");
       _index.deleted(a, nl.mtime());
       changed = true;
     }
@@ -191,7 +192,12 @@ vector<string> Backitup::list_path(string path) {
       ss << setfill(' ') << setw(10) << n.size();
     }
 
-    ss << " " << mbstr << " " << n.name();
+    ss << " " << mbstr << " ";
+    if (n.is_dir()) {
+      ss << "\x1b[34m" << n.name() << "\x1b[0m";
+    } else {
+      ss << n.name();
+    }
     out.push_back(ss.str());
 
     total_bytes += n.size();
