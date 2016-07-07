@@ -29,6 +29,7 @@ int main(int argc, char** argv) {
   backitup::loglevel = backitup::WARN;
 
   string op;
+  string path;
   string storage_path;
   string index_path;
 
@@ -50,9 +51,11 @@ int main(int argc, char** argv) {
 
   po::positional_options_description pd;
   pd.add("op", 1);
+  pd.add("path", 1);
 
   po::options_description hidden("Hidden options");
   hidden.add_options()("op", po::value<string>(&op), "op");
+  hidden.add_options()("path", po::value<string>(&path), "op");
 
   po::options_description cmdline_options;
   cmdline_options.add(desc).add(hidden);
@@ -101,8 +104,7 @@ int main(int argc, char** argv) {
   backitup::Backitup bu(index, store);
 
   if (op == "ls") {
-    string list_path = "/";
-    auto l = bu.list_path(list_path);
+    auto l = bu.list_path(path);
     for (string s : l) {
       cout << s << endl;
     }

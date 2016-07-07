@@ -11,6 +11,13 @@
 
 namespace backitup {
 
+class BackitupException : public std::runtime_error {
+ public:
+  BackitupException() : runtime_error("Backitup error") {}
+  BackitupException(std::string msg)
+      : runtime_error(string(string("Backitup error: ").append(msg)).c_str()) {}
+};
+
 class Backitup {
  public:
   Backitup(Index& i, Storage& s);

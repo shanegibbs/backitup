@@ -31,7 +31,7 @@ class BackupPath {
   BackupPath(const string path, vector<string> e);
   ~BackupPath();
 
-  std::thread watch(function<void(const string &changed)> fn);
+  void watch(function<void(const string &changed)> fn);
 
   void visit(function<void(const string &path, const NodeList &)> fn) const;
   void visit(const string &p,
@@ -43,9 +43,14 @@ class BackupPath {
 
   const string get_path() const { return path; }
 
+  void stop();
+
  private:
   const string path;
   vector<string> excludes;
+
+  std::thread _watch_thread;
+  CFRunLoopRef _run_loop_ptr = nullptr;
 
   bool _watch_started;
   function<void(const string &changed)> _on_watch_event;

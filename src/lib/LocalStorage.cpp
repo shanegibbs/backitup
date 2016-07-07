@@ -56,7 +56,7 @@ void LocalStorage::send(const string& base_path, Node& n) {
     throw LocalStorageException("Failed to open tmp file: " + tmp_path_bz);
   }
 
-  string source = base_path + "/" + n.path() + "/" + n.getName();
+  string source = base_path + "/" + n.path() + "/" + n.name();
 
   ifstream file(source, ios::in | ios::binary);
   if (!file.is_open()) {

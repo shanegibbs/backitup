@@ -19,11 +19,9 @@ void Backitup::stop() {
   unique_lock<mutex> lk(_stopped_m);
   stopped_cv.wait_for(lk, 5s, [&] { return _stopped; });
   if (!_stopped) {
-    throw "Failed to stop channel";
+    fatal << "Failed to stop channel";
+    throw BackitupException("Failed to stop channel");
   }
-
-  _stopped = false;
-  _chan.reset();
 }
 
 void Backitup::init(BackupPath& b) {
@@ -31,10 +29,10 @@ void Backitup::init(BackupPath& b) {
 
   Channel<string>& chan_ref = _chan;
   b.watch([&chan_ref](const string& changed) -> void {
-     if (chan_ref.put(changed)) {
-       debug << "Queued for processing " << changed;
-     }
-   }).detach();
+    if (chan_ref.put(changed)) {
+      debug << "Queued for processing " << changed;
+    }
+  });
 
   // run full scan
 
@@ -53,6 +51,7 @@ void Backitup::init(BackupPath& b) {
 thread Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
   _running = true;
   _stopped = false;
+  _chan.reset();
 
   std::thread t([&]() {
     string changed;
@@ -79,7 +78,7 @@ thread Backitup::run(BackupPath& b, function<void(const string& path)> fn) {
         }
       }
 
-      _chan.get(changed, true);
+      if (!_chan.get(changed, true)) continue;
 
       debug << "Processing " << changed;
       auto nl = b.list(changed);
@@ -111,28 +110,32 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
     fileCount++;
     fileSize += n.size();
 
-    if (n.getName() == "scratch.txt.db") continue;
+    if (n.name() == "scratch.txt.db") continue;
 
     const Node* found = nullptr;
     for (auto& a : stored.list()) {
-      if (a.getName() == n.getName() && a.mtime() == n.mtime() &&
+      if (a.name() == n.name() && a.mtime() == n.mtime() &&
           a.size() == n.size()) {
         found = &a;
       }
     }
     if (found == nullptr && !_index.contains(n)) {
-      if (n.size() > _max_file_size_bytes) {
-        warn << "Skipping large file " << n.getName();
+      if (_max_file_size_bytes != 0 && n.size() > _max_file_size_bytes) {
+        warn << "Skipping large file " << n.name() << ". Size was " << n.size()
+             << " bytes";
         continue;
       }
-      info << "New " << n.path() << "/" << n.getName();
-      Node a = n;
 
-      try {
-        _store.send(path, a);
-      } catch (exception& e) {
-        warn << "Failed to send to store: " << e.what();
-        continue;
+      info << "New " << n.full_path();
+      Node a = n;  // copy to non-const
+
+      if (!a.is_dir()) {
+        try {
+          _store.send(path, a);
+        } catch (exception& e) {
+          warn << "Failed to send to store: " << e.what();
+          continue;
+        }
       }
 
       _index.save(a);
@@ -144,12 +147,12 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
   for (auto& a : stored.list()) {
     const Node* found = nullptr;
     for (auto& n : nl.list()) {
-      if (a.getName() == n.getName()) {
+      if (a.name() == n.name()) {
         found = &a;
       }
     }
     if (found == nullptr) {
-      info << "Deleted " << a.path() << "/" << a.getName();
+      info << "Deleted " << a.path() << "/" << a.name();
       _index.deleted(a, nl.mtime());
       changed = true;
     }
@@ -183,7 +186,7 @@ vector<string> Backitup::list_path(string path) {
     }
 
     ss << setfill(' ') << setw(10) << n.size() << " " << mbstr << " "
-       << n.getName();
+       << n.name();
     out.push_back(ss.str());
 
     total_bytes += n.size();

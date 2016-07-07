@@ -14,6 +14,8 @@ class Record {
   Record() {}
   Record(const std::string &line);
   std::string to_line() const;
+  char type() const { return _type; }
+  void type(char t) { _type = t; }
   std::string &path() const { return const_cast<std::string &>(_path); }
   void path(std::string p) { _path = p; }
   std::string &name() const { return const_cast<std::string &>(_name); }
@@ -27,6 +29,7 @@ class Record {
   std::string dump() const;
 
  private:
+  char _type;
   std::string _path;
   std::string _name;
   long _timestamp;

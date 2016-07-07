@@ -23,6 +23,18 @@ class FatalLogEvent : public std::runtime_error {
   FatalLogEvent() : std::runtime_error("FatalLogEvent") {}
 };
 
+class ShowDebug {
+ public:
+  ShowDebug() {
+    _was = loglevel;
+    loglevel = DEBUG;
+  }
+  ~ShowDebug() { loglevel = _was; }
+
+ private:
+  LogLevel _was;
+};
+
 class Log {
  public:
   Log(const std::string name) : _name(name) {}
@@ -55,7 +67,7 @@ class Logger {
         break;
 
       case INFO:
-        l = "\x1b[34mINFO\x1b[0m ";
+        l = colorize("34", "INFO");  //"\x1b[34mINFO\x1b[0m ";
         break;
 
       case WARN:
@@ -75,6 +87,10 @@ class Logger {
     };
 
     _buffer << l << " ";
+  }
+
+  std::string colorize(std::string color, std::string s) const {
+    return "\x1b[" + color + "m" + s + "\x1b[0m";
   }
 
   ~Logger() {

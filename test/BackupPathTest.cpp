@@ -55,15 +55,15 @@ void BackupPathTest::testVisit() {
     CPPUNIT_ASSERT_EQUAL(
         boost::filesystem::canonical("backuppath_test").native(), path);
     if (nl.path() == "") {
-      CPPUNIT_ASSERT_EQUAL(2UL, nl.list().size());
+      CPPUNIT_ASSERT_EQUAL(3UL, nl.list().size());
 
       const Node& a = nl.list()[0];
-      CPPUNIT_ASSERT_EQUAL(string("a"), a.getName());
+      CPPUNIT_ASSERT_EQUAL(string("a"), a.name());
       CPPUNIT_ASSERT_EQUAL(string(""), a.path());
       CPPUNIT_ASSERT_EQUAL(4L, a.size());
 
       const Node& b = nl.list()[1];
-      CPPUNIT_ASSERT_EQUAL(string("b"), b.getName());
+      CPPUNIT_ASSERT_EQUAL(string("b"), b.name());
       CPPUNIT_ASSERT_EQUAL(string(""), b.path());
       CPPUNIT_ASSERT_EQUAL(5L, b.size());
       root_check = true;
@@ -71,7 +71,7 @@ void BackupPathTest::testVisit() {
     } else if (nl.path() == "subdir") {
       CPPUNIT_ASSERT_EQUAL(1UL, nl.list().size());
       const Node& a = nl.list()[0];
-      CPPUNIT_ASSERT_EQUAL(string("c"), a.getName());
+      CPPUNIT_ASSERT_EQUAL(string("c"), a.name());
       CPPUNIT_ASSERT_EQUAL(string("subdir"), a.path());
       CPPUNIT_ASSERT_EQUAL(4L, a.size());
       subdir_check = true;
@@ -101,15 +101,14 @@ void BackupPathTest::testWatch() {
   condition_variable cv;
 
   backup_path.watch([&](const string& changed) -> void {
-               if (changed != "" && changed != "subdir") {
-                 last_failure_msg = "Unexpected watch path: " + changed;
-               }
+    if (changed != "" && changed != "subdir") {
+      last_failure_msg = "Unexpected watch path: " + changed;
+    }
 
-               unique_lock<mutex> lk(m);
-               count += 1;
-               cv.notify_one();
-             })
-      .detach();
+    unique_lock<mutex> lk(m);
+    count += 1;
+    cv.notify_one();
+  });
 
   create_file("backuppath_test/a", "abc\n");
   create_file("backuppath_test/subdir/c", "abc\n");

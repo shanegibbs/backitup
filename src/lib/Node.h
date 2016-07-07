@@ -12,6 +12,7 @@
 #include <functional>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -21,23 +22,29 @@ namespace backitup {
 
 class Node {
  public:
-  Node(unsigned int id, const string name, shared_ptr<Node> parent);
+  Node() {
+    _size = 0;
+    _mtime = 0;
+  }
+  Node(const string path, const string name, bool is_dir = false)
+      : _path(path), _name(name), _is_dir(is_dir) {
+    _size = 0;
+    _mtime = 0;
+  }
   Node(const string path, const string name, long mtime, long size,
        string sha256);
 
-  const string getFullPath() const;
+  const string full_path() const;
 
-  const unsigned int getId() const { return id; }
+  void name(const string& n) { _name = n; }
 
-  void setId(unsigned int id) { this->id = id; }
+  const string& name() const { return _name; }
 
-  const string& getName() const { return name; }
+  bool is_dir() const { return _is_dir; }
 
   const string& path() const { return _path; }
 
   void path(const string& p) { _path = p; }
-
-  shared_ptr<Node> getParent() const { return parent; }
 
   long mtime() const { return _mtime; }
 
@@ -51,36 +58,27 @@ class Node {
 
   void sha256(const string& s) { _sha256 = s; }
 
-  void addChild(shared_ptr<Node> n) { children_.push_back(n); }
+  bool operator>(const Node& n) const { return (_name > n._name); }
+  bool operator<(const Node& n) const { return (_name < n._name); }
 
-  const vector<shared_ptr<Node>>& children() const { return children_; }
-
-  static shared_ptr<Node> create(int id, const string name,
-                                 shared_ptr<Node> parent) {
-    return shared_ptr<Node>(new Node(id, name, parent));
-  }
-
-  static shared_ptr<Node> createRoot() {
-    return shared_ptr<Node>(new Node(0, "", shared_ptr<Node>()));
-  }
-
-  bool operator>(const Node& n) const { return (getName() > n.getName()); }
-  bool operator<(const Node& n) const { return (getName() < n.getName()); }
-
-  void dump() const {
-    cout << "Node [path=" << _path << ", name=" << name << ", mtime=" << _mtime
-         << ", size=" << _size << ", sha256=" << _sha256 << "]" << endl;
+  std::string dump() const {
+    std::stringstream ss;
+    ss << "Node [path=" << _path << ", name=" << _name << ", mtime=" << _mtime;
+    if (is_dir()) {
+      ss << ", dir]";
+    } else {
+      ss << ", size=" << _size << ", sha256=" << _sha256 << "]";
+    }
+    return ss.str();
   }
 
  private:
-  unsigned int id;
   string _path;
-  string name;
+  string _name;
+  bool _is_dir = false;
   long _size;
   long _mtime;
   string _sha256;
-  shared_ptr<Node> parent;
-  vector<shared_ptr<Node>> children_;
 };
 
 class NodeList;

@@ -77,14 +77,15 @@ void BackitupTest::testMain() {
 
   // do initial scan and setup watches
 
+  // auto d = ShowDebug();
   backitup.init(fs);
 
   auto nl = repo.latest(string("/"));
   debug << "nl.dump()\n" << nl.dump();
   CPPUNIT_ASSERT_EQUAL(string("/"), nl.path());
-  CPPUNIT_ASSERT_EQUAL(1UL, nl.list().size());
-  Node n = nl.list()[0];
-  CPPUNIT_ASSERT_EQUAL(string("initial"), n.getName());
+  CPPUNIT_ASSERT_EQUAL(2UL, nl.list().size());
+  Node n = nl.list()[1];
+  CPPUNIT_ASSERT_EQUAL(string("initial"), n.name());
   CPPUNIT_ASSERT_EQUAL(4L, n.size());
   CPPUNIT_ASSERT_EQUAL(
       string(
@@ -93,6 +94,7 @@ void BackitupTest::testMain() {
 
   string expected = raw(R"(
     / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+    / subdir 0 
     subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
     subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
   )");
@@ -107,7 +109,7 @@ void BackitupTest::testMain() {
 
     int count = 0;
 
-    backitup.run(fs, [&](const string& path) -> void {
+    auto t = backitup.run(fs, [&](const string& path) -> void {
       if (path == "subdir") {
         unique_lock<mutex> lk(m);
         count += 1;
@@ -120,9 +122,11 @@ void BackitupTest::testMain() {
     CPPUNIT_ASSERT_EQUAL(1, count);
 
     backitup.stop();
+    t.join();
 
     string expected = raw(R"(
       / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      / subdir 0 
       subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
@@ -136,7 +140,7 @@ void BackitupTest::testMain() {
 
     int count = 0;
 
-    backitup.run(fs, [&](const string& path) -> void {
+    auto t = backitup.run(fs, [&](const string& path) -> void {
       if (path == "subdir") {
         unique_lock<mutex> lk(m);
         count += 1;
@@ -149,9 +153,11 @@ void BackitupTest::testMain() {
     CPPUNIT_ASSERT_EQUAL(1, count);
 
     backitup.stop();
+    t.join();
 
     string expected = raw(R"(
       / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      / subdir 0 
       subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirC 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
@@ -167,7 +173,7 @@ void BackitupTest::testMain() {
 
     int count = 0;
 
-    backitup.run(fs, [&](const string& path) -> void {
+    auto t = backitup.run(fs, [&](const string& path) -> void {
       if (path == "dirtest") {
         unique_lock<mutex> lk(m);
         count += 1;
@@ -180,9 +186,12 @@ void BackitupTest::testMain() {
     CPPUNIT_ASSERT_EQUAL(1, count);
 
     backitup.stop();
+    t.join();
 
     string expected = raw(R"(
+      / dirtest 0 
       / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      / subdir 0 
       dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       subdir subdirB 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
@@ -198,7 +207,7 @@ void BackitupTest::testMain() {
 
     int count = 0;
 
-    backitup.run(fs, [&](const string& path) -> void {
+    auto t = backitup.run(fs, [&](const string& path) -> void {
       if (path == "dirtest") {
         unique_lock<mutex> lk(m);
         count += 1;
@@ -211,9 +220,12 @@ void BackitupTest::testMain() {
     CPPUNIT_ASSERT_EQUAL(1, count);
 
     backitup.stop();
+    t.join();
 
     string expected = raw(R"(
+      / dirtest 0 
       / initial 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
+      / subdir 0 
       dirtest dirtestfile 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
       dirtest dirtestfile 4 _
       subdir subdirA 4 edeaaff3f1774ad2888673770c6d64097e391bc362d7d6fb34982ddf0efd18cb
@@ -223,4 +235,6 @@ void BackitupTest::testMain() {
     )");
     CPPUNIT_ASSERT_EQUAL(expected, repo.dump());
   }
+
+  fs.stop();
 }

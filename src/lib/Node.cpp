@@ -12,40 +12,23 @@
 
 namespace backitup {
 
-Node::Node(unsigned int id, const string name, shared_ptr<Node> parent)
-    : id(id), name(name), parent(parent) {}
-
 Node::Node(const string path, const string name, long mtime, long size,
            string sha256)
-    : _path(path), name(name), _size(size), _mtime(mtime), _sha256(sha256) {}
+    : _path(path), _name(name), _size(size), _mtime(mtime), _sha256(sha256) {}
 
-const string Node::getFullPath() const {
+const string Node::full_path() const {
   std::stringstream ss;
-
-  if (!_path.empty()) {
-    ss << _path << "/" << name;
-  } else {
-    stack<const Node *> chain;
-
-    const Node *n = this;
-    while (n) {
-      chain.push(n);
-      n = n->parent.get();
-    }
-
-    while (!chain.empty()) {
-      n = chain.top();
-      if (!n->name.empty()) ss << "/";
-      ss << n->name;
-      chain.pop();
-    }
-  }
+  if (!_path.empty()) ss << _path << "/";
+  ss << _name;
   return ss.str();
 }
 
 string NodeList::dump() const {
   stringstream ss;
   ss << _path << endl;
+  for (auto& n : _list) {
+    ss << n.dump() << endl;
+  }
   return ss.str();
 }
 }

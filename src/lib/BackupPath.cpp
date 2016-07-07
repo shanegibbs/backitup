@@ -12,6 +12,7 @@
 #include <functional>
 #include <iostream>
 #include <mutex>
+#include <queue>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -36,18 +37,45 @@ BackupPath::BackupPath(const std::string p, vector<string> e)
       excludes(e),
       _watch_started(false) {}
 
-BackupPath::~BackupPath() {
+BackupPath::~BackupPath() { stop(); }
+
+void BackupPath::stop() {
   if (_watch_started) {
     FSEventStreamFlushSync(_stream);
     FSEventStreamStop(_stream);
     FSEventStreamInvalidate(_stream);
     FSEventStreamRelease(_stream);
+    CFRunLoopStop(_run_loop_ptr);
+    _watch_thread.join();
+    _watch_started = false;
   }
 }
 
+// TODO convert to bredth first
+
 void BackupPath::visit(
     function<void(const string &, const NodeList &)> fn) const {
-  visit(string(""), fn);
+  // visit(string(""), fn);
+
+  // we do bredth first search so that we do not pass a file before
+  // it's directory
+
+  queue<string> todo;
+  todo.push("");
+
+  while (!todo.empty()) {
+    string p = todo.front();
+    todo.pop();
+
+    auto nl = list(p);
+    fn(path, nl);
+
+    for (auto &n : nl.list()) {
+      if (n.is_dir()) {
+        todo.push(n.full_path());
+      }
+    }
+  }
 }
 
 void BackupPath::visit(
@@ -82,6 +110,8 @@ void BackupPath::visit(
     if (dir->d_type == DT_DIR) {
       string next_p = (!p.empty() ? p + "/" : "") + dir->d_name;
       visit(next_p, fn);
+      Node d_node(p, dir->d_name, true);
+      nl.add(d_node);
     } else if (dir->d_type == DT_REG) {
       string filename = full_path + "/" + dir->d_name;
       struct stat s;
@@ -118,7 +148,14 @@ NodeList BackupPath::list(const string &p) const {
   }
 
   while ((dir = readdir(d)) != NULL) {
-    if (dir->d_type == DT_REG) {
+    if (strcmp(dir->d_name, ".") == 0) continue;
+    if (strcmp(dir->d_name, "..") == 0) continue;
+
+    if (dir->d_type == DT_DIR) {
+      string next_p = (!p.empty() ? p + "/" : "") + dir->d_name;
+      Node d_node(p, dir->d_name, true);
+      nl.add(d_node);
+    } else if (dir->d_type == DT_REG) {
       string filename = full_path + "/" + dir->d_name;
       struct stat s;
       if (stat(filename.c_str(), &s) == -1) {
@@ -177,7 +214,7 @@ static void watch_callback(ConstFSEventStreamRef streamRef,
   }
 }
 
-std::thread BackupPath::watch(function<void(const string &changed)> fn) {
+void BackupPath::watch(function<void(const string &changed)> fn) {
   if (_watch_started) {
     throw "Watch alraedy running";
   }
@@ -188,7 +225,7 @@ std::thread BackupPath::watch(function<void(const string &changed)> fn) {
   condition_variable cv;
   bool init_complete = false;
 
-  std::thread t([&]() {
+  _watch_thread = thread([&]() {
     CFStringRef mypath =
         CFStringCreateWithCString(NULL, path.c_str(), kCFStringEncodingUTF8);
     CFArrayRef pathsToWatch =
@@ -205,13 +242,15 @@ std::thread BackupPath::watch(function<void(const string &changed)> fn) {
 
     CFAbsoluteTime latency = 0.0; /* Latency in seconds */
 
+    _run_loop_ptr = CFRunLoopGetCurrent();
+
     /* Create the stream, passing in a callback */
     _stream = FSEventStreamCreate(
         NULL, &watch_callback, context, pathsToWatch,
         kFSEventStreamEventIdSinceNow,        /* Or a previous event ID */
         latency, kFSEventStreamCreateFlagNone /* Flags explained in reference */
         );
-    FSEventStreamScheduleWithRunLoop(_stream, CFRunLoopGetCurrent(),
+    FSEventStreamScheduleWithRunLoop(_stream, _run_loop_ptr,
                                      kCFRunLoopDefaultMode);
     FSEventStreamStart(_stream);
 
@@ -223,14 +262,11 @@ std::thread BackupPath::watch(function<void(const string &changed)> fn) {
 
     CFRunLoopRun();
   });
-  // t.detach();
 
   unique_lock<mutex> lk(m);
   cv.wait_for(lk, 5s, [&] { return init_complete; });
   if (!init_complete) {
     throw "Timeout waiting for FSEvent stream to start";
   }
-
-  return t;
 }
 }

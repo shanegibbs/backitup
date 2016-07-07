@@ -23,17 +23,18 @@ static Log LOG = Log("TextNodeRepo");
 Record::Record(const string &line) {
   std::vector<std::string> strs;
   boost::split(strs, line, boost::is_any_of("\t"));
-  _path = strs[0];
-  _name = strs[1];
-  _timestamp = stol(strs[2].c_str());
-  _size = stol(strs[3].c_str());
-  _hash = strs[4];
+  _type = strs[0].front();
+  _path = strs[1];
+  _name = strs[2];
+  _timestamp = stol(strs[3].c_str());
+  _size = stol(strs[4].c_str());
+  _hash = strs[5];
 }
 
 std::string Record::to_line() const {
   stringstream ss;
-  ss << _path << "\t" << _name << "\t" << _timestamp << "\t" << _size << "\t"
-     << _hash;
+  ss << _type << "\t" << _path << "\t" << _name << "\t" << _timestamp << "\t"
+     << _size << "\t" << _hash;
   return ss.str();
 }
 
@@ -95,9 +96,9 @@ bool TextNodeRepo::contains(const Node &n) {
     // cout << "TextNodeRepo does not contain path " << n.path() << endl;
   }
 
-  auto recs = names[n.getName()];
+  auto recs = names[n.name()];
   if (recs.size() == 0) {
-    // cout << "TextNodeRepo does not contain " << n.getName() << " in "
+    // cout << "TextNodeRepo does not contain " << n.name() << " in "
     //      << n.path() << endl;
   }
 
@@ -129,7 +130,7 @@ void TextNodeRepo::save(const Node &n) {
 
   stringstream ss;
 
-  if (n.sha256().empty()) {
+  if (n.sha256().empty() && !n.is_dir()) {
     throw TextNodeRepoSaveException("Field sha256 missing");
   }
 
@@ -145,14 +146,20 @@ void TextNodeRepo::save(const Node &n) {
     path = "/";
   }
 
+  if (n.is_dir()) {
+    rec.type('D');
+  } else {
+    rec.type('F');
+  }
+
   rec.path(path);
-  rec.name(n.getName());
+  rec.name(n.name());
   rec.hash(n.sha256());
   rec.timestamp(n.mtime());
   rec.size(n.size());
 
   auto &names = records[path];
-  auto &recs = names[n.getName()];
+  auto &recs = names[n.name()];
   recs.push_back(rec);
 
   ofstream outfile;
@@ -182,7 +189,8 @@ NodeList TextNodeRepo::latest(const string &path) {
     if (latest->hash() == "_") {
       continue;
     }
-    Node n = Node(0, latest->name(), nullptr);
+    Node n = Node();
+    n.name(latest->name());
     n.path(latest->path());
     n.mtime(latest->timestamp());
     n.size(latest->size());
