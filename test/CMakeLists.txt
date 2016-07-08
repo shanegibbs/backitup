@@ -38,3 +38,5 @@ target_link_libraries (backitup_unittests
 )
 
 add_test(NAME backitup_unittests COMMAND backitup_unittests)
+
+add_test(NAME IT_tests COMMAND ${CMAKE_SOURCE_DIR}/test/it.sh)

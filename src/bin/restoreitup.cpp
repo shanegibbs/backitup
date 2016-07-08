@@ -26,7 +26,7 @@ namespace po = boost::program_options;
 static backitup::Log LOG = backitup::Log("main");
 
 int main(int argc, char** argv) {
-  backitup::loglevel = backitup::DEBUG;
+  backitup::loglevel = backitup::INFO;
 
   string op;
   string path;

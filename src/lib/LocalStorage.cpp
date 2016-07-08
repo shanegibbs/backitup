@@ -108,8 +108,8 @@ void LocalStorage::send(const string& base_path, Node& n) {
 
   debug << "Calculated hash for " << source << " as " << hash_str;
 
-  string final_path = to_hashpath(hash_str);
-  string final_name = _path + to_hashname(hash_str);
+  string final_path = _path + "/" + to_hashpath(hash_str);
+  string final_name = _path + "/" + to_hashname(hash_str);
   string final_name_bz = final_name + ".bz2";
 
   if (fs::exists(final_name) || fs::exists(final_name_bz)) {
@@ -205,5 +205,7 @@ void LocalStorage::retrieve(const Node n, string dst) {
   } else {
     debug << "Restored and hash matches " << n.sha256();
   }
+
+  fs::last_write_time(dst_name, n.mtime());
 }
 }

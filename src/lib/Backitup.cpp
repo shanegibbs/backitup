@@ -1,11 +1,16 @@
 #include <ctime>
 #include <iomanip>
 
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+
 #include "Backitup.h"
 
 #include "Channel.h"
 #include "Helpers.h"
 #include "Log.h"
+
+namespace fs = boost::filesystem;
 
 namespace backitup {
 
@@ -214,17 +219,16 @@ vector<string> Backitup::list_path(string path) {
 }
 
 void Backitup::restore(string path, string dest) {
-  info << "Restoring path " << path << " to " << dest;
-
   auto nl = _index.latest(path);
 
   for (auto& n : nl.list()) {
     if (n.is_dir()) {
       string new_path = trim_slashes(path + "/" + n.name());
       string new_dest = trim_slashes(dest + "/" + n.name());
+      fs::create_directories(new_dest);
       restore(new_path, new_dest);
     } else {
-      info << "Restoring file " << n.name();
+      info << "Restoring " << n.full_path();
       _store.retrieve(n, dest);
     }
   }
