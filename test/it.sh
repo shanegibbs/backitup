@@ -30,6 +30,17 @@ rm -rf restore
 ../../test/compare-dirs.sh files restore
 
 
+# Delete single file
+
+rm files/bashrc
+
+sleep 2
+
+rm -rf restore
+../bin/restoreitup restore '' restore
+../../test/compare-dirs.sh files restore
+
+
 # Test two files
 
 echo abcdef > files/vimrc
