@@ -37,6 +37,8 @@ class Backitup {
 
   vector<string> list_path(string path);
 
+  void restore(string path, string dest);
+
  private:
   bool process_nl(const string& path, const NodeList& nl);
 

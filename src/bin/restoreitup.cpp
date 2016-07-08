@@ -26,10 +26,11 @@ namespace po = boost::program_options;
 static backitup::Log LOG = backitup::Log("main");
 
 int main(int argc, char** argv) {
-  backitup::loglevel = backitup::WARN;
+  backitup::loglevel = backitup::DEBUG;
 
   string op;
   string path;
+  string arg0;
   string storage_path;
   string index_path;
 
@@ -52,10 +53,12 @@ int main(int argc, char** argv) {
   po::positional_options_description pd;
   pd.add("op", 1);
   pd.add("path", 1);
+  pd.add("arg0", 1);
 
   po::options_description hidden("Hidden options");
   hidden.add_options()("op", po::value<string>(&op), "op");
-  hidden.add_options()("path", po::value<string>(&path), "op");
+  hidden.add_options()("path", po::value<string>(&path), "path");
+  hidden.add_options()("arg0", po::value<string>(&arg0), "arg0");
 
   po::options_description cmdline_options;
   cmdline_options.add(desc).add(hidden);
@@ -103,11 +106,16 @@ int main(int argc, char** argv) {
 
   backitup::Backitup bu(index, store);
 
+  info << "Op: " << op;
+
   if (op == "ls") {
     auto l = bu.list_path(path);
     for (string s : l) {
       cout << s << endl;
     }
+  } else if (op == "restore") {
+    info << "Restoring " << path << " to " << arg0;
+    bu.restore(path, arg0);
   }
 
   return 0;

@@ -8,6 +8,7 @@ namespace backitup {
 class Storage {
  public:
   virtual void send(const string& base_path, Node& n) = 0;
+  virtual void retrieve(const Node n, string dst) = 0;
 };
 }
 

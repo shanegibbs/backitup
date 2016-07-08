@@ -23,6 +23,7 @@ class LocalStorage : public Storage {
 
   LocalStorage(const std::string& path);
   void send(const string& base_path, Node& n);
+  void retrieve(const Node n, string dst);
 
  private:
   std::string _path;
