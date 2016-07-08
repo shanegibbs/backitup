@@ -8,12 +8,14 @@
 class TextNodeRepoTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(TextNodeRepoTest);
   CPPUNIT_TEST(testMain);
+  CPPUNIT_TEST(testAddRemove);
   CPPUNIT_TEST_SUITE_END();
 
  public:
   void setUp();
   void tearDown();
   void testMain();
+  void testAddRemove();
 };
 
 #endif /* REPOSITORYTEST_H_ */

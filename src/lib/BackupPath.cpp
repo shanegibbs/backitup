@@ -80,7 +80,9 @@ void BackupPath::visit(
 
 NodeList BackupPath::list(const string &p) const {
   NodeList nl(p);
+  nl.mtime(time(nullptr));
 
+  struct stat s;
   DIR *d;
   struct dirent *dir;
   string full_path = path + "/" + p;
@@ -103,7 +105,7 @@ NodeList BackupPath::list(const string &p) const {
       nl.add(d_node);
     } else if (dir->d_type == DT_REG) {
       string filename = full_path + "/" + dir->d_name;
-      struct stat s;
+
       if (stat(filename.c_str(), &s) == -1) {
         warn << "Unable to stat file: " << filename;
       } else {

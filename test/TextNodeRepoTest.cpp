@@ -61,3 +61,17 @@ void TextNodeRepoTest::testMain() {
   Node n = stored.list().front();
   CPPUNIT_ASSERT_EQUAL(true, n.is_dir());
 }
+
+void TextNodeRepoTest::testAddRemove() {
+  TextNodeRepo repo;
+  auto stored = repo.latest(string(""));
+  CPPUNIT_ASSERT_EQUAL(0UL, stored.list().size());
+
+  repo.save(Node("", "a", 0, 0, "abc"));
+  stored = repo.latest(string(""));
+  CPPUNIT_ASSERT_EQUAL(1UL, stored.list().size());
+
+  repo.deleted(Node("", "a", 1, 0, ""), 2);
+  stored = repo.latest(string(""));
+  CPPUNIT_ASSERT_EQUAL(0UL, stored.list().size());
+}
