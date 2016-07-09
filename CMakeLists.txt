@@ -21,7 +21,7 @@ link_directories(/usr/local/lib)
 set(BOOST_ROOT /usr/lib/sc-boost-1.59.0)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.59.0 COMPONENTS log_setup log thread system filesystem program_options regex REQUIRED)
+find_package(Boost 1.59.0 COMPONENTS log_setup log thread system filesystem program_options regex iostreams REQUIRED)
 message("-- Found Boost include dirs ${Boost_INCLUDE_DIRS}")
 
 # db

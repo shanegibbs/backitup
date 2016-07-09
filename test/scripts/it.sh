@@ -18,7 +18,7 @@ compare_dirs() {
 test_restore() {
   sleep 2
   rm -rf restore
-  ../bin/restoreitup restore '' restore
+  restoreitup restore '' restore
   compare_dirs files restore
   echo "Tested restore OK"
 }
@@ -29,6 +29,9 @@ rm -rf it
 mkdir it
 cd it
 
+export PATH="../../bin:$PATH"
+
+
 # create source path for backingup
 
 mkdir files
@@ -36,7 +39,7 @@ mkdir files
 # start backitup
 
 trap 'kill $(jobs -p)' EXIT
-../bin/backitup --interval 1s files &
+backitup --interval 1s files &
 sleep 1
 
 
