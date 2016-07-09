@@ -5,6 +5,7 @@
  *      Author: sgibbs
  */
 
+#include <fstream>
 #include <regex>
 #include <sys/stat.h>
 #include <vector>
@@ -22,10 +23,11 @@ using namespace std;
 // using namespace backitup;
 
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 static backitup::Log LOG = backitup::Log("main");
 
-unsigned long parse_max_file_size_bytes(string max_file_size_str) {
+unsigned long static parse_max_file_size_bytes(string max_file_size_str) {
   set<string> filesize_suffixes;
   filesize_suffixes.insert("KB");
   filesize_suffixes.insert("MB");
@@ -57,12 +59,32 @@ unsigned long parse_max_file_size_bytes(string max_file_size_str) {
   throw string("Unable to determin suffix");
 }
 
+static string find_config_file() {
+  fs::path current = fs::current_path();
+
+  while (!current.string().empty()) {
+    string config_file = current.string() + "/.backitup";
+    if (fs::exists(config_file)) {
+      info << "Using config " << config_file;
+      return config_file;
+    }
+    current = current.parent_path();
+  }
+
+  string system_config = "/etc/backitup/config";
+  if (fs::exists(system_config)) {
+    info << "Using config " << system_config;
+    return system_config;
+  }
+
+  return ".backitup";
+}
+
 int main(int argc, char** argv) {
   backitup::loglevel = backitup::INFO;
 
   string path;
-  string storage_path;
-  string index_path;
+  string working_path;
   string backup_interval_str;
   string max_file_size_str;
 
@@ -70,50 +92,61 @@ int main(int argc, char** argv) {
   po::options_description desc("Usage: backitup [OPTIONS] PATH");
   desc.add_options()
   ("help", "Produce this help message")
-  ("index", po::value<string>(&index_path)
-    ->default_value(string("backitup.db"))
-    ->value_name(string("FILE")),
-    "File index database path.")
+  ;
+
+  po::options_description config("Configuration");
+  config.add_options()
+
+  ("path", po::value<string>(&path)
+   ->value_name(string("PATH"))
+   ->required(),
+   "Path to backup.")
+
+  ("working", po::value<string>(&working_path)
+   ->value_name(string("PATH"))
+   ->required(),
+   "Working directory for backitup.")
+
   ("interval", po::value<string>(&backup_interval_str)
    ->default_value(string("15m"))
    ->value_name(string("TIME")),
    "Time between backups.")
+
   ("max-file-size", po::value<string>(&max_file_size_str)
    ->default_value(string("10MB"))
    ->value_name(string("BYTES")),
    "Maximum file size to backup. 0 for no limit.")
-  ("storage", po::value<string>(&storage_path)
-    ->default_value(string("storage"))
-    ->value_name(string("PATH"))
-    ->required(),
-    "Path to file storage for backup destination.")
+
   ;
   // clang-format on
 
-  po::positional_options_description pd;
-  pd.add("path", 1);
-
-  po::options_description hidden("Hidden options");
-  hidden.add_options()("path", po::value<string>(&path), "path");
-
   po::options_description cmdline_options;
-  cmdline_options.add(desc).add(hidden);
+  cmdline_options.add(desc).add(config);
 
   po::variables_map vm;
+
+  string config_file_name = find_config_file();
+
   try {
-    po::store(po::command_line_parser(argc, argv)
-                  .options(cmdline_options)
-                  .positional(pd)
-                  .run(),
-              vm);
+    ifstream config_file(config_file_name, ifstream::in);
+    po::store(po::parse_config_file(config_file, config), vm);
   } catch (exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
-    std::cerr << desc << std::endl;
+    std::cerr << cmdline_options << std::endl;
+    return 1;
+  }
+
+  try {
+    po::store(
+        po::command_line_parser(argc, argv).options(cmdline_options).run(), vm);
+  } catch (exception& e) {
+    std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
+    std::cerr << cmdline_options << std::endl;
     return 1;
   }
 
   if (vm.count("help")) {
-    cout << desc << "\n";
+    cout << cmdline_options << "\n";
     return 0;
   }
 
@@ -121,7 +154,7 @@ int main(int argc, char** argv) {
     po::notify(vm);
   } catch (exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
-    std::cerr << desc << std::endl;
+    std::cerr << cmdline_options << std::endl;
     return 1;
   }
 
@@ -132,20 +165,24 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  if (!boost::filesystem::exists(storage_path)) {
-    if (mkdir(storage_path.c_str(), 0755) == -1) {
-      cerr << "Failed to mkdir for storage path:" << storage_path << endl;
-      return 1;
-    }
+  if (working_path.front() != '/') {
+    working_path =
+        fs::path(config_file_name).parent_path().string() + "/" + working_path;
   }
 
+  info << "Working path " << working_path;
+
+  string storage_path = working_path + "/blob-storage";
+  string index_path = working_path + "/index.db";
+
   storage_path = boost::filesystem::canonical(storage_path).native();
+  fs::create_directories(storage_path);
 
   if (vm.count("path")) {
-    cout << "Backup Path: " << path << endl;
+    info << "Backup Path: " << path;
   } else {
     cout << "ERROR: Path not set.\n";
-    cout << desc << "\n";
+    cout << cmdline_options << "\n";
     return 1;
   }
 
@@ -186,7 +223,7 @@ int main(int argc, char** argv) {
       pair<string, int>(backup_interval_str, interval_secs);
 
   backitup::LocalStorage store(storage_path);
-  backitup::TextNodeRepo index;
+  backitup::TextNodeRepo index(index_path);
 
   vector<string> excludes;
   excludes.push_back(storage_path);

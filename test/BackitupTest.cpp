@@ -52,7 +52,7 @@ static void delete_file(const char* filename) {
 }
 
 void BackitupTest::setUp() {
-  fs::remove_all("scratch.txt.db");
+  fs::remove_all("test.db");
   fs::remove_all("backupitup_test");
 }
 
@@ -70,7 +70,7 @@ void BackitupTest::testMain() {
 
   BackupPath fs("backupitup_test/files", vector<string>());
   LocalStorage store("backupitup_test/storage");
-  TextNodeRepo repo;
+  TextNodeRepo repo("test.db");
 
   Backitup backitup(repo, store);
   backitup.sleep_on_empty(false);

@@ -23,7 +23,7 @@ class TextNodeRepoSaveException : public std::runtime_error {
 
 class TextNodeRepo : public Index {
  public:
-  TextNodeRepo();
+  TextNodeRepo(std::string index_path);
   bool contains(const Node &n);
   void save(const Node &n);
   void deleted(const Node &n, long mtime);
@@ -41,6 +41,7 @@ class TextNodeRepo : public Index {
   string dump();
 
  private:
+  std::string _index_path;
   std::unordered_map<std::string,
                      std::unordered_map<std::string, std::vector<Record>>>
       records;

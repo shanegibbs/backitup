@@ -46,9 +46,11 @@ string Record::dump() const {
   return ss.str();
 }
 
-TextNodeRepo::TextNodeRepo() {
-  info << "Loading scratch.txt.db";
-  ifstream in("scratch.txt.db");
+TextNodeRepo::TextNodeRepo(string index_path) {
+  _index_path = index_path;
+
+  info << "Loading " << _index_path;
+  ifstream in(_index_path);
 
   unsigned int count = 0;
 
@@ -67,19 +69,7 @@ TextNodeRepo::TextNodeRepo() {
   info << "Loaded " << count << " records";
 }
 
-void TextNodeRepo::flush() {
-  /*
-  std::ofstream out("scratch.txt.db");
-  for (auto &p : records) {
-    for (auto &d : p.second) {
-      for (auto &r : d.second) {
-        out << r.to_line() << endl;
-      }
-    }
-  }
-  out.close();
-   */
-}
+void TextNodeRepo::flush() {}
 
 bool TextNodeRepo::contains(const Node &n) {
   // Called when we want to check a file needs backing up: have no hash at this
@@ -160,7 +150,7 @@ void TextNodeRepo::save(const Node &n) {
   recs.push_back(rec);
 
   ofstream outfile;
-  outfile.open("scratch.txt.db", ios_base::app);
+  outfile.open(_index_path, ios_base::app);
   outfile << rec.to_line() << endl;
 }
 

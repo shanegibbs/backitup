@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
   storage_path = boost::filesystem::canonical(storage_path).native();
 
   backitup::LocalStorage store(storage_path);
-  backitup::TextNodeRepo index;
+  backitup::TextNodeRepo index("scratch.txt.db");
 
   vector<string> excludes;
   backitup::BackupPath fs("/", excludes);  // TODO we don't need BackupPath here

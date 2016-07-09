@@ -12,12 +12,12 @@ using namespace std;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TextNodeRepoTest);
 
-void TextNodeRepoTest::setUp() { remove("scratch.txt.db"); }
+void TextNodeRepoTest::setUp() { remove("test.db"); }
 
 void TextNodeRepoTest::tearDown() {}
 
 void TextNodeRepoTest::testMain() {
-  TextNodeRepo repo;
+  TextNodeRepo repo("test.db");
   auto stored = repo.latest(string("/"));
   CPPUNIT_ASSERT_EQUAL(0UL, stored.list().size());
 
@@ -63,7 +63,7 @@ void TextNodeRepoTest::testMain() {
 }
 
 void TextNodeRepoTest::testAddRemove() {
-  TextNodeRepo repo;
+  TextNodeRepo repo("test.db");
   auto stored = repo.latest(string(""));
   CPPUNIT_ASSERT_EQUAL(0UL, stored.list().size());
 
