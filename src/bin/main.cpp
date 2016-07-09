@@ -83,6 +83,9 @@ static string find_config_file() {
 int main(int argc, char** argv) {
   backitup::loglevel = backitup::INFO;
 
+  string op;
+  string arg0;
+
   string path;
   string working_path;
   string backup_interval_str;
@@ -120,8 +123,16 @@ int main(int argc, char** argv) {
   ;
   // clang-format on
 
+  po::positional_options_description pd;
+  pd.add("op", 1);
+  pd.add("arg0", 1);
+
+  po::options_description hidden("Hidden options");
+  hidden.add_options()("op", po::value<string>(&op)->required(), "op");
+  hidden.add_options()("arg0", po::value<string>(&op), "arg0");
+
   po::options_description cmdline_options;
-  cmdline_options.add(desc).add(config);
+  cmdline_options.add(desc).add(config).add(hidden);
 
   po::variables_map vm;
 
@@ -137,8 +148,11 @@ int main(int argc, char** argv) {
   }
 
   try {
-    po::store(
-        po::command_line_parser(argc, argv).options(cmdline_options).run(), vm);
+    po::store(po::command_line_parser(argc, argv)
+                  .options(cmdline_options)
+                  .positional(pd)
+                  .run(),
+              vm);
   } catch (exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
     std::cerr << cmdline_options << std::endl;
@@ -158,16 +172,20 @@ int main(int argc, char** argv) {
     return 1;
   }
 
+  if (working_path.front() != '/') {
+    working_path =
+        fs::path(config_file_name).parent_path().string() + "/" + working_path;
+  }
+
+  if (path.front() != '/') {
+    path = fs::path(config_file_name).parent_path().string() + "/" + path;
+  }
+
   try {
     path = boost::filesystem::canonical(path).native();
   } catch (exception& e) {
     std::cerr << "ERROR: " << e.what() << std::endl << std::endl;
     return 1;
-  }
-
-  if (working_path.front() != '/') {
-    working_path =
-        fs::path(config_file_name).parent_path().string() + "/" + working_path;
   }
 
   info << "Working path " << working_path;
@@ -232,11 +250,27 @@ int main(int argc, char** argv) {
 
   backitup::Backitup bu(index, store);
 
-  bu.interval(interval);
-  bu.max_file_size_bytes(max_file_size_bytes);
-  bu.init(fs);
-  bu.run(fs).join();
+  if (op == "service") {
+    bu.interval(interval);
+    bu.max_file_size_bytes(max_file_size_bytes);
+    bu.init(fs);
+    bu.run(fs).join();
+    warn << "ending";
 
-  warn << "ending";
+  } else if (op == "ls") {
+    string current_dir = fs::current_path().string();
+    if (arg0.empty() && current_dir.size() > path.size()) {
+      arg0 = current_dir.substr(path.size() + 1);
+    }
+
+    auto l = bu.list_path(arg0);
+    for (string s : l) {
+      cout << s << endl;
+    }
+
+  } else {
+    error << "Unknown opperation: " << op;
+  }
+
   return 0;
 }
