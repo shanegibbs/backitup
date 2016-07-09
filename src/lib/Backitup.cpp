@@ -218,19 +218,25 @@ vector<string> Backitup::list_path(string path) {
   return out;
 }
 
-void Backitup::restore(string path, string dest) {
+long Backitup::restore(string path, string dest) {
   auto nl = _index.latest(path);
-  fs::create_directories(dest);
+
+  long oldest_file_mtime = 0;
 
   for (auto& n : nl.list()) {
     if (n.is_dir()) {
       string new_path = trim_slashes(path + "/" + n.name());
       string new_dest = trim_slashes(dest + "/" + n.name());
-      restore(new_path, new_dest);
+      fs::create_directories(new_dest);
+      long dir_mtime = restore(new_path, new_dest);
+      fs::last_write_time(new_dest, max(n.mtime(), dir_mtime));
     } else {
       info << "Restoring " << n.full_path();
       _store.retrieve(n, dest);
+      oldest_file_mtime = max(n.mtime(), oldest_file_mtime);
     }
   }
+
+  return oldest_file_mtime;
 }
 }

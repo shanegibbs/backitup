@@ -22,6 +22,7 @@ using namespace std;
 // using namespace backitup;
 
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 static backitup::Log LOG = backitup::Log("main");
 
@@ -106,7 +107,7 @@ int main(int argc, char** argv) {
 
   backitup::Backitup bu(index, store);
 
-  info << "Op: " << op;
+  debug << "Op: " << op;
 
   if (op == "ls") {
     auto l = bu.list_path(path);
@@ -115,6 +116,7 @@ int main(int argc, char** argv) {
     }
   } else if (op == "restore") {
     info << "Restoring " << path << " to " << arg0;
+    fs::create_directories(arg0);
     bu.restore(path, arg0);
   }
 

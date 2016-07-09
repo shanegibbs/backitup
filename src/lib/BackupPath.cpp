@@ -99,13 +99,26 @@ NodeList BackupPath::list(const string &p) const {
     if (strcmp(dir->d_name, ".") == 0) continue;
     if (strcmp(dir->d_name, "..") == 0) continue;
 
+    string filename = full_path + "/" + dir->d_name;
+
     if (dir->d_type == DT_DIR) {
       string next_p = (!p.empty() ? p + "/" : "") + dir->d_name;
       Node d_node(p, dir->d_name, true);
-      nl.add(d_node);
-    } else if (dir->d_type == DT_REG) {
-      string filename = full_path + "/" + dir->d_name;
 
+      if (stat(filename.c_str(), &s) == -1) {
+        warn << "Unable to stat directory: " << filename;
+      } else {
+        long mtime = s.st_mtime;
+        long ctime = s.st_ctime;
+        if (ctime > mtime) mtime = ctime;
+        // Node node(p, string(dir->d_name), mtime, s.st_size, string(""));
+        // nl.add(node);
+        d_node.mtime(mtime);
+      }
+
+      nl.add(d_node);
+
+    } else if (dir->d_type == DT_REG) {
       if (stat(filename.c_str(), &s) == -1) {
         warn << "Unable to stat file: " << filename;
       } else {
