@@ -89,7 +89,7 @@ pair<string, time_t> Options::parse_path_time_spec(string current_dir,
     regex e("^([^@]*)@([^@]+)$");
 
     if (!regex_match(arg0, e)) {
-      throw backitup::OptionsException(
+      throw OptionsException(
           "Path spec does not match regex: ^([^@]*)@([^@]+)$");
     }
 
@@ -126,8 +126,7 @@ pair<string, time_t> Options::parse_path_time_spec(string current_dir,
       } else if (period == "year") {
         magnitude = 60 * 60 * 24 * 7 * 52;
       } else {
-        throw backitup::OptionsException(string("Unknown time period: ") +
-                                         m[2].str());
+        throw OptionsException(string("Unknown time period: ") + m[2].str());
       }
 
       timestamp_arg -= (count * magnitude);
@@ -136,8 +135,7 @@ pair<string, time_t> Options::parse_path_time_spec(string current_dir,
     }
 
     if (!time_arg_tmp.empty()) {
-      throw backitup::OptionsException(string("Failed to parse timespec: ") +
-                                       time_arg);
+      throw OptionsException(string("Failed to parse timespec: ") + time_arg);
     }
   }
 
@@ -151,5 +149,32 @@ pair<string, time_t> Options::parse_path_time_spec(string current_dir,
 
   info << "path_arg=" << path_arg;
   return pair<string, time_t>(path_arg, timestamp_arg);
+}
+
+pair<string, int> Options::parse_interval(string arg) {
+  set<char> interval_types;
+  interval_types.insert('s');
+  interval_types.insert('m');
+  interval_types.insert('h');
+
+  char interval_kind = arg.back();
+  if (interval_types.find(interval_kind) == interval_types.end()) {
+    throw OptionsException(string("Period suffix for --interval: ") +
+                           interval_kind);
+  }
+
+  string interval_count_str = arg.substr(0, arg.size() - 1);
+  int interval_secs = stoi(interval_count_str);
+
+  switch (interval_kind) {
+    case 'm':
+      interval_secs = interval_secs * 60;
+      break;
+    case 'h':
+      interval_secs *= 60 * 60;
+      break;
+  }
+
+  return pair<string, int>(arg, interval_secs);
 }
 }

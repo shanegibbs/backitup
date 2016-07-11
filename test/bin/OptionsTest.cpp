@@ -35,3 +35,20 @@ void OptionsTest::test_parse_path_time_spec() {
   CPPUNIT_ASSERT(val.second >= 1468199691);
   CPPUNIT_ASSERT(val.second < 2000000000);
 }
+
+void OptionsTest::test_parse_interval() {
+  Options options;
+
+  auto val = options.parse_interval("1s");
+  CPPUNIT_ASSERT_EQUAL(string("1s"), val.first);
+  CPPUNIT_ASSERT_EQUAL(1, val.second);
+
+  val = options.parse_interval("1m");
+  CPPUNIT_ASSERT_EQUAL(60, val.second);
+
+  val = options.parse_interval("2m");
+  CPPUNIT_ASSERT_EQUAL(120, val.second);
+
+  val = options.parse_interval("2h");
+  CPPUNIT_ASSERT_EQUAL(7200, val.second);
+}

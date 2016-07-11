@@ -29,7 +29,6 @@ namespace fs = boost::filesystem;
 
 static backitup::Log LOG = backitup::Log("main");
 
-
 int main(int argc, char** argv) {
   backitup::loglevel = backitup::INFO;
 
@@ -165,32 +164,7 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  set<char> interval_types;
-  interval_types.insert('s');
-  interval_types.insert('m');
-  interval_types.insert('h');
-
-  char interval_kind = backup_interval_str.back();
-  if (interval_types.find(interval_kind) == interval_types.end()) {
-    fatal << "Period suffix for --interval: " << interval_kind;
-    return 1;
-  }
-
-  string interval_count_str =
-      backup_interval_str.substr(0, backup_interval_str.size() - 1);
-  int interval_secs = stoi(interval_count_str);
-
-  switch (interval_kind) {
-    case 'm':
-      interval_secs = interval_secs * 60;
-      break;
-    case 'h':
-      interval_secs *= 60 * 60;
-      break;
-  }
-
-  pair<string, int> interval =
-      pair<string, int>(backup_interval_str, interval_secs);
+  pair<string, int> interval = options.parse_interval(backup_interval_str);
 
   backitup::LocalStorage store(storage_path);
   backitup::TextNodeRepo index(index_path);
@@ -210,74 +184,13 @@ int main(int argc, char** argv) {
     warn << "ending";
 
   } else if (op == "ls") {
-    string path_arg = arg0;
-    time_t timestamp = time(nullptr);
+    string current_dir = fs::current_path().string();
+    auto path_spec = options.parse_path_time_spec(current_dir, path, arg0);
 
-    if (arg0.find('@') != string::npos) {
-      regex e("^([^@]*)@([^@]+)$");
-
-      if (!regex_match(arg0, e)) {
-        fatal << "Path spec does not match regex: ^([^@]*)@([^@]+)$";
-        return 1;
-      }
-
-      smatch sm;
-      regex_match(arg0, sm, e);
-      path_arg = sm[1];
-      string time_arg = sm[2];
-      info << "time_arg=" << time_arg;
-
-      regex timespec_regex("^(\\d+)([a-z]+)s?");
-      smatch m;
-
-      string time_arg_tmp = time_arg;
-
-      while (regex_search(time_arg_tmp, m, timespec_regex)) {
-        int count = stoi(m[1]);
-        string period = m[2];
-        if (period.back() == 's') {
-          period = period.substr(0, period.size() - 1);
-        }
-
-        int magnitude;
-
-        if (period == "sec") {
-          magnitude = 1;
-        } else if (period == "min") {
-          magnitude = 60;
-        } else if (period == "hour") {
-          magnitude = 60 * 60;
-        } else if (period == "day") {
-          magnitude = 60 * 60 * 24;
-        } else if (period == "week") {
-          magnitude = 60 * 60 * 24 * 7;
-        } else if (period == "year") {
-          magnitude = 60 * 60 * 24 * 7 * 52;
-        } else {
-          fatal << "Unknown time period: " << m[2];
-          return 1;
-        }
-
-        timestamp -= (count * magnitude);
-
-        time_arg_tmp = m.suffix().str();
-      }
-
-      if (!time_arg_tmp.empty()) {
-        fatal << "Failed to parse timespec: " << time_arg;
-        return 1;
-      }
-    }
-
-    tm tm = *std::localtime(&timestamp);
+    tm tm = *std::localtime(&path_spec.second);
     info << "Timestamp set to " << put_time(&tm, "%c %Z");
 
-    string current_dir = fs::current_path().string();
-    if (path_arg.empty() && current_dir.size() > path.size()) {
-      path_arg = current_dir.substr(path.size() + 1);
-    }
-
-    auto l = bu.list_path(path_arg, timestamp);
+    auto l = bu.list_path(path_spec.first, path_spec.second);
     for (string s : l) {
       cout << s << endl;
     }

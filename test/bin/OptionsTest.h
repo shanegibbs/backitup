@@ -7,6 +7,7 @@ class OptionsTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(OptionsTest);
   CPPUNIT_TEST(test_parse_max_file_size_bytes);
   CPPUNIT_TEST(test_parse_path_time_spec);
+  CPPUNIT_TEST(test_parse_interval);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -14,6 +15,7 @@ class OptionsTest : public CPPUNIT_NS::TestFixture {
   void tearDown();
   void test_parse_max_file_size_bytes();
   void test_parse_path_time_spec();
+  void test_parse_interval();
 };
 
 #endif /* BACKITUPTEST_H_ */
