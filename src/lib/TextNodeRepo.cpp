@@ -59,8 +59,11 @@ TextNodeRepo::TextNodeRepo(string index_path) {
     Record rec(line);
     // debug << "rec.dump() " << rec.dump();
 
-    records[rec.path()][rec.name()].push_back(rec);
+    auto &recs = records[rec.path()][rec.name()];
+    recs.push_back(rec);
+    sort(recs.begin(), recs.end(), less<Record>());
     // cout << count << " Loaded " << rec.name() << endl;
+
     count++;
   }
 
@@ -148,6 +151,7 @@ void TextNodeRepo::save(const Node &n) {
   auto &names = records[path];
   auto &recs = names[n.name()];
   recs.push_back(rec);
+  sort(recs.begin(), recs.end(), less<Record>());
 
   ofstream outfile;
   outfile.open(_index_path, ios_base::app);
@@ -161,19 +165,20 @@ void TextNodeRepo::deleted(const Node &n, long mtime) {
   save(a);
 }
 
-NodeList TextNodeRepo::latest(const string &path) {
-  // cout << "TextNodeRepo generating latest NodeList of " << path << endl;
+NodeList TextNodeRepo::list(string path, time_t ts) {
   auto list = NodeList::New(path);
 
   auto &names = records[path];  // list of files in path
   for (auto &d : names) {       // for each file
     Record *latest = nullptr;
     for (auto &r : d.second) {  // for each version
-      if (latest == nullptr || r.timestamp() > latest->timestamp()) {
+      if (r.timestamp() <= ts) {
         latest = &r;
+      } else {
+        break;
       }
     }
-    if (latest->hash() == "_") {
+    if (latest == nullptr || latest->hash() == "_") {
       continue;
     }
     Node n = Node();

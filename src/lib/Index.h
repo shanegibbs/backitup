@@ -10,7 +10,8 @@ class Index {
   virtual bool contains(const Node &n) = 0;
   virtual void save(const Node &n) = 0;
   virtual void deleted(const Node &n, long mtime) = 0;
-  virtual NodeList latest(const string &path) = 0;
+  virtual NodeList list(string path) = 0;
+  virtual NodeList list(string path, time_t ts) = 0;
   virtual void flush() = 0;
 };
 }

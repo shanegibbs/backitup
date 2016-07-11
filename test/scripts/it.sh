@@ -25,6 +25,7 @@ test_restore() {
 
 # reset test dir
 
+echo "Running IT tests in $(pwd)"
 rm -rf it
 mkdir it
 cd it
@@ -39,7 +40,7 @@ mkdir files
 # start backitup
 
 trap 'kill $(jobs -p)' EXIT
-backitup --interval 1s files &
+backitup service --interval 1s files &
 sleep 1
 
 

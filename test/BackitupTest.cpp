@@ -80,7 +80,7 @@ void BackitupTest::testMain() {
   // auto d = ShowDebug();
   backitup.init(fs);
 
-  auto nl = repo.latest(string(""));
+  auto nl = repo.list(string(""));
   debug << "nl.dump()\n" << nl.dump();
   CPPUNIT_ASSERT_EQUAL(string(""), nl.path());
   CPPUNIT_ASSERT_EQUAL(2UL, nl.list().size());

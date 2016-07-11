@@ -28,6 +28,9 @@ class Record {
   void hash(std::string h) { _hash = h; }
   std::string dump() const;
 
+  bool operator>(const Record &n) const { return (_timestamp > n._timestamp); }
+  bool operator<(const Record &n) const { return (_timestamp < n._timestamp); }
+
  private:
   char _type;
   std::string _path;

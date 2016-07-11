@@ -109,7 +109,7 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
   unsigned long fileSize = 0;
   bool changed = false;
 
-  auto stored = _index.latest(nl.path());
+  auto stored = _index.list(nl.path());
 
   // check for new nodes
   for (auto& n : nl.list()) {
@@ -172,8 +172,8 @@ bool Backitup::process_nl(const string& path, const NodeList& nl) {
   return changed;
 }
 
-vector<string> Backitup::list_path(string path) {
-  auto nl = _index.latest(path);
+vector<string> Backitup::list_path(string path, time_t ts) {
+  auto nl = _index.list(path, ts);
 
   vector<string> out;
   unsigned long total_bytes = 0;
@@ -219,7 +219,7 @@ vector<string> Backitup::list_path(string path) {
 }
 
 long Backitup::restore(string path, string dest) {
-  auto nl = _index.latest(path);
+  auto nl = _index.list(path);
 
   long oldest_file_mtime = 0;
 

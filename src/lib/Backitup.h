@@ -35,7 +35,10 @@ class Backitup {
 
   void max_file_size_bytes(unsigned long l) { _max_file_size_bytes = l; }
 
-  vector<string> list_path(string path);
+  vector<string> list_path(string path) {
+    return list_path(path, time(nullptr));
+  }
+  vector<string> list_path(string path, time_t ts);
 
   long restore(string path, string dest);
 

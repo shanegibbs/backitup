@@ -6,18 +6,20 @@
  */
 
 #include <fstream>
+#include <iomanip>
 #include <regex>
 #include <sys/stat.h>
 #include <vector>
 
-#include <Backitup.h>
-#include <LocalStorage.h>
-#include <TextNodeRepo.h>
-
 #include <boost/filesystem.hpp>
 #include <boost/program_options.hpp>
 
+#include <Backitup.h>
+#include <LocalStorage.h>
 #include <Log.h>
+#include <TextNodeRepo.h>
+
+#include "Options.h"
 
 using namespace std;
 // using namespace backitup;
@@ -27,61 +29,11 @@ namespace fs = boost::filesystem;
 
 static backitup::Log LOG = backitup::Log("main");
 
-unsigned long static parse_max_file_size_bytes(string max_file_size_str) {
-  set<string> filesize_suffixes;
-  filesize_suffixes.insert("KB");
-  filesize_suffixes.insert("MB");
-  filesize_suffixes.insert("GB");
-  filesize_suffixes.insert("B");
-
-  regex e("(\\d+)([KMG]?B)");
-
-  if (!regex_match(max_file_size_str, e)) {
-    throw string("Does not match regex: \\d+[KMG]?B");
-  }
-
-  smatch sm;
-  regex_match(max_file_size_str, sm, e);
-
-  string val = sm[1];
-  string suffix = sm[2];
-
-  if (suffix == "B") {
-    return stoi(val);
-  } else if (suffix == "KB") {
-    return stoi(val) * 1024;
-  } else if (suffix == "MB") {
-    return stoi(val) * 1024 * 1024;
-  } else if (suffix == "GB") {
-    return stoi(val) * 1024 * 1024 * 1024;
-  }
-
-  throw string("Unable to determin suffix");
-}
-
-static string find_config_file() {
-  fs::path current = fs::current_path();
-
-  while (!current.string().empty()) {
-    string config_file = current.string() + "/.backitup";
-    if (fs::exists(config_file)) {
-      info << "Using config " << config_file;
-      return config_file;
-    }
-    current = current.parent_path();
-  }
-
-  string system_config = "/etc/backitup/config";
-  if (fs::exists(system_config)) {
-    info << "Using config " << system_config;
-    return system_config;
-  }
-
-  return ".backitup";
-}
 
 int main(int argc, char** argv) {
   backitup::loglevel = backitup::INFO;
+
+  backitup::Options options;
 
   string op;
   string arg0;
@@ -129,14 +81,14 @@ int main(int argc, char** argv) {
 
   po::options_description hidden("Hidden options");
   hidden.add_options()("op", po::value<string>(&op)->required(), "op");
-  hidden.add_options()("arg0", po::value<string>(&op), "arg0");
+  hidden.add_options()("arg0", po::value<string>(&arg0), "arg0");
 
   po::options_description cmdline_options;
   cmdline_options.add(desc).add(config).add(hidden);
 
   po::variables_map vm;
 
-  string config_file_name = find_config_file();
+  string config_file_name = options.find_config_file();
 
   try {
     ifstream config_file(config_file_name, ifstream::in);
@@ -206,7 +158,7 @@ int main(int argc, char** argv) {
 
   unsigned long max_file_size_bytes = 0;
   try {
-    max_file_size_bytes = parse_max_file_size_bytes(max_file_size_str);
+    max_file_size_bytes = options.parse_max_file_size_bytes(max_file_size_str);
     info << "Max size file for backup is " << max_file_size_bytes << " bytes";
   } catch (string& e) {
     fatal << "Failed to parse max-file-size: " << e;
@@ -258,12 +210,74 @@ int main(int argc, char** argv) {
     warn << "ending";
 
   } else if (op == "ls") {
-    string current_dir = fs::current_path().string();
-    if (arg0.empty() && current_dir.size() > path.size()) {
-      arg0 = current_dir.substr(path.size() + 1);
+    string path_arg = arg0;
+    time_t timestamp = time(nullptr);
+
+    if (arg0.find('@') != string::npos) {
+      regex e("^([^@]*)@([^@]+)$");
+
+      if (!regex_match(arg0, e)) {
+        fatal << "Path spec does not match regex: ^([^@]*)@([^@]+)$";
+        return 1;
+      }
+
+      smatch sm;
+      regex_match(arg0, sm, e);
+      path_arg = sm[1];
+      string time_arg = sm[2];
+      info << "time_arg=" << time_arg;
+
+      regex timespec_regex("^(\\d+)([a-z]+)s?");
+      smatch m;
+
+      string time_arg_tmp = time_arg;
+
+      while (regex_search(time_arg_tmp, m, timespec_regex)) {
+        int count = stoi(m[1]);
+        string period = m[2];
+        if (period.back() == 's') {
+          period = period.substr(0, period.size() - 1);
+        }
+
+        int magnitude;
+
+        if (period == "sec") {
+          magnitude = 1;
+        } else if (period == "min") {
+          magnitude = 60;
+        } else if (period == "hour") {
+          magnitude = 60 * 60;
+        } else if (period == "day") {
+          magnitude = 60 * 60 * 24;
+        } else if (period == "week") {
+          magnitude = 60 * 60 * 24 * 7;
+        } else if (period == "year") {
+          magnitude = 60 * 60 * 24 * 7 * 52;
+        } else {
+          fatal << "Unknown time period: " << m[2];
+          return 1;
+        }
+
+        timestamp -= (count * magnitude);
+
+        time_arg_tmp = m.suffix().str();
+      }
+
+      if (!time_arg_tmp.empty()) {
+        fatal << "Failed to parse timespec: " << time_arg;
+        return 1;
+      }
     }
 
-    auto l = bu.list_path(arg0);
+    tm tm = *std::localtime(&timestamp);
+    info << "Timestamp set to " << put_time(&tm, "%c %Z");
+
+    string current_dir = fs::current_path().string();
+    if (path_arg.empty() && current_dir.size() > path.size()) {
+      path_arg = current_dir.substr(path.size() + 1);
+    }
+
+    auto l = bu.list_path(path_arg, timestamp);
     for (string s : l) {
       cout << s << endl;
     }

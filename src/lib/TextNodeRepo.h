@@ -29,7 +29,9 @@ class TextNodeRepo : public Index {
   void deleted(const Node &n, long mtime);
   void compact() {}
 
-  NodeList latest(const string &path);
+  NodeList list(string path, time_t ts);
+  NodeList list(string path) { return list(path, time(nullptr)); }
+
   NodeListRef diff(NodeListRef r);
 
   const Node &getParent(const Node &n);

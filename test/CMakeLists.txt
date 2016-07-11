@@ -1,5 +1,6 @@
 include_directories (
   ${CMAKE_SOURCE_DIR}/src/lib
+  ${CMAKE_SOURCE_DIR}/src/bin
   ${Boost_INCLUDE_DIRS}
   /usr/local/Cellar/cppunit/1.13.2/include
 )
@@ -25,11 +26,13 @@ add_executable(backitup_unittests main.cpp
   BackupPathTest.cpp
   BackitupTest.cpp
   NodeTest.cpp
+  bin/OptionsTest.cpp
 )
 
 target_link_libraries (backitup_unittests
   cppunit
   backitup
+  backitup-cli
   crypto
   ssl.a
   bz2.a
